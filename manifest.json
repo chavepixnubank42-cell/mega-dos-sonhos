@@ -1,0 +1,32 @@
+{
+  "name": "Mega dos Sonhos — Numerologia & Signo",
+  "short_name": "Mega Sonhos",
+  "description": "Gerador de números da Mega-Sena a partir de sonhos e histórico real, com numerologia e signo solar.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0E1233",
+  "theme_color": "#0E1233",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
