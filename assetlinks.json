@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.megasonhos.app",
+      "sha256_cert_fingerprints": [
+        "B1:03:68:84:7B:90:5D:15:70:70:C0:0B:E5:7E:1B:A2:59:06:66:1B:A3:D6:9B:26:B5:42:47:DA:B9:5D:CF:80"
+      ]
+    }
+  }
+]
