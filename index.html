@@ -418,6 +418,34 @@
   .update-msg.ok { color: #7FBF8E; background: rgba(127,191,142,0.1); }
   .update-msg.erro { color: #F29E9E; background: rgba(242,158,158,0.1); }
   .update-msg.info { color: var(--text-mute); background: rgba(139,135,190,0.1); }
+
+  .resultado-banner {
+    background: linear-gradient(135deg, rgba(242,200,121,0.16), rgba(34,197,94,0.10));
+    border: 1px solid var(--gold-dark);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .resultado-banner .rb-titulo { font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 15px; color: var(--gold-light); margin-bottom: 6px; }
+  .resultado-banner .rb-numeros { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+  .resultado-banner .rb-bola {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--gold-light), var(--gold) 60%, var(--gold-dark));
+    color: #171B45; font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 12px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .resultado-banner button {
+    margin-top: 6px;
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold-light);
+    border-radius: 999px;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
 </style>
 </head>
 <body>
@@ -433,6 +461,8 @@
     <button class="tab-btn active" id="tabBtnMega" onclick="mudarAba('mega')">🎱 Mega dos Sonhos</button>
     <button class="tab-btn" id="tabBtnNumero" onclick="mudarAba('numero')">🔮 Numerologia &amp; Signo</button>
   </div>
+
+  <div id="novoResultadoBanner" class="resultado-banner" style="display:none;"></div>
 
   <div id="view-mega">
 
@@ -545,6 +575,31 @@ function mostrarMsgAtualizacao(texto, tipo) {
 // Só funciona com o arquivo aberto num navegador com internet — se a API
 // estiver fora do ar, bloquear CORS, ou não houver conexão, falha de forma
 // silenciosa e avisa, sem quebrar o resto do app.
+// Ao abrir o app, checa (silenciosamente, sem travar nada se falhar) se já
+// saiu um concurso mais novo que o embutido no arquivo, e mostra um banner
+// avisando o resultado — sem precisar a pessoa clicar em nada.
+async function verificarUltimoResultado() {
+  try {
+    const resp = await fetch('https://loteriascaixa-api.herokuapp.com/api/mega-sena/latest');
+    if (!resp.ok) return;
+    const dados = await resp.json();
+    if (!dados || !dados.concurso || !Array.isArray(dados.dezenas)) return;
+
+    if (dados.concurso > MEGA_STATS.ultimo_concurso) {
+      const dezenas = dados.dezenas.map(Number).sort((a,b) => a-b);
+      const banner = document.getElementById('novoResultadoBanner');
+      banner.innerHTML = `
+        <div class="rb-titulo">🎉 Saiu o resultado do concurso ${dados.concurso}${dados.data ? ' (' + dados.data + ')' : ''}!</div>
+        <div class="rb-numeros">${dezenas.map(n => `<div class="rb-bola">${String(n).padStart(2,'0')}</div>`).join('')}</div>
+        <button onclick="atualizarResultados(); document.getElementById('novoResultadoBanner').style.display='none';">Atualizar meus dados agora</button>
+      `;
+      banner.style.display = 'block';
+    }
+  } catch (erro) {
+    // offline ou API fora do ar — não faz nada, o app continua normal
+  }
+}
+
 async function atualizarResultados() {
   const btn = document.getElementById('btnAtualizar');
   const textoOriginal = btn.textContent;
@@ -1305,6 +1360,7 @@ function refazerCalculo() {
 // ---- Inicialização ----
 renderFreqChart();
 renderHistorico();
+verificarUltimoResultado();
 
 // Registra o service worker só se o navegador suportar e estiver num
 // contexto seguro (https ou localhost) — em file:// local ele simplesmente
