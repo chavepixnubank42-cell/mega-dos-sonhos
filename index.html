@@ -446,6 +446,33 @@
     font-weight: 600;
     cursor: pointer;
   }
+
+  .premio-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    background: linear-gradient(160deg, rgba(242,200,121,0.14), rgba(34,197,94,0.08));
+    border: 1px solid var(--gold-dark);
+    border-radius: 18px;
+    padding: 18px 16px;
+    margin-bottom: 20px;
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(242,200,121,0.12);
+  }
+  .premio-box .premio-label { font-size: 13px; color: var(--text-soft); margin-bottom: 2px; }
+  .premio-box .premio-valor {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 800;
+    font-size: 34px;
+    background: linear-gradient(180deg, var(--gold-light) 10%, var(--gold) 60%, var(--gold-dark) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.2;
+  }
+  .premio-box .premio-info { color: var(--text-faint); font-size: 12px; margin-top: 4px; }
 </style>
 </head>
 <body>
@@ -456,6 +483,8 @@
     <p>Conte um sonho ou um desejo. Eu cruzo com o Livro dos Sonhos e com o histórico real de todos os 3.053 concursos da Mega-Sena (Loterias Caixa) pra te devolver <b>6 números</b>.</p>
     <span class="src" id="srcBadge">📖 Base: O Livro dos Sonhos (L P Baçan) · concursos 1 a 3053</span>
   </header>
+
+  <div id="premioBox" class="premio-box" style="display:none;"></div>
 
   <div class="tabs">
     <button class="tab-btn active" id="tabBtnMega" onclick="mudarAba('mega')">🎱 Mega dos Sonhos</button>
@@ -575,28 +604,79 @@ function mostrarMsgAtualizacao(texto, tipo) {
 // Só funciona com o arquivo aberto num navegador com internet — se a API
 // estiver fora do ar, bloquear CORS, ou não houver conexão, falha de forma
 // silenciosa e avisa, sem quebrar o resto do app.
+// A API muda um pouco os nomes dos campos de valor dependendo da versão —
+// aqui a gente tenta todos os formatos conhecidos: string já pronta
+// ("R$ 7 Milhões") ou número puro (precisa formatar como moeda).
+function formatarValorPremio(dados) {
+  const bruto = dados.acumuladaProxConcurso
+    ?? dados.valorEstimadoProximoConcurso
+    ?? dados.valorAcumuladoProximoConcurso
+    ?? null;
+  if (bruto === null || bruto === undefined || bruto === '') return null;
+  if (typeof bruto === 'string') return bruto.trim();
+  if (typeof bruto === 'number' && bruto > 0) {
+    return bruto.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+  }
+  return null;
+}
+
+function mostrarPremioBox(dados) {
+  const valor = formatarValorPremio(dados);
+  if (!valor) return;
+  const proxConcurso = dados.proximoConcurso || dados.proxConcurso || dados.numeroConcursoProximo || (dados.concurso ? dados.concurso + 1 : null);
+  const dataProx = dados.dataProxConcurso || dados.dataProximoConcurso;
+  const box = document.getElementById('premioBox');
+  box.innerHTML = `
+    <div class="premio-label">💰 Estimativa do próximo prêmio</div>
+    <div class="premio-valor">${valor}</div>
+    ${proxConcurso ? `<div class="premio-info">Concurso ${proxConcurso}${dataProx ? ' · ' + dataProx : ''}</div>` : ''}
+  `;
+  box.style.display = 'flex';
+}
+
+// A API de resultados não manda cabeçalho de CORS, então o navegador
+// bloqueia a chamada direta. Essa função tenta direto primeiro e, se falhar,
+// passa por um proxy público que adiciona o cabeçalho necessário — testa
+// mais de um proxy em sequência, e se todos falharem retorna null (o app
+// simplesmente não mostra a informação, sem quebrar nada).
+async function fetchComFallbackCORS(urlAlvo) {
+  const tentativas = [
+    urlAlvo,
+    'https://api.allorigins.win/raw?url=' + encodeURIComponent(urlAlvo),
+    'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(urlAlvo),
+    'https://corsproxy.io/?url=' + encodeURIComponent(urlAlvo),
+  ];
+  for (const url of tentativas) {
+    try {
+      const resp = await fetch(url);
+      if (!resp.ok) continue;
+      const dados = await resp.json();
+      if (dados) return dados;
+    } catch (erro) {
+      continue; // essa tentativa falhou (CORS, offline, proxy fora do ar) — tenta a próxima
+    }
+  }
+  return null;
+}
+
 // Ao abrir o app, checa (silenciosamente, sem travar nada se falhar) se já
 // saiu um concurso mais novo que o embutido no arquivo, e mostra um banner
 // avisando o resultado — sem precisar a pessoa clicar em nada.
 async function verificarUltimoResultado() {
-  try {
-    const resp = await fetch('https://loteriascaixa-api.herokuapp.com/api/mega-sena/latest');
-    if (!resp.ok) return;
-    const dados = await resp.json();
-    if (!dados || !dados.concurso || !Array.isArray(dados.dezenas)) return;
+  const dados = await fetchComFallbackCORS('https://loteriascaixa-api.herokuapp.com/api/megasena/latest');
+  if (!dados || !dados.concurso || !Array.isArray(dados.dezenas)) return;
 
-    if (dados.concurso > MEGA_STATS.ultimo_concurso) {
-      const dezenas = dados.dezenas.map(Number).sort((a,b) => a-b);
-      const banner = document.getElementById('novoResultadoBanner');
-      banner.innerHTML = `
-        <div class="rb-titulo">🎉 Saiu o resultado do concurso ${dados.concurso}${dados.data ? ' (' + dados.data + ')' : ''}!</div>
-        <div class="rb-numeros">${dezenas.map(n => `<div class="rb-bola">${String(n).padStart(2,'0')}</div>`).join('')}</div>
-        <button onclick="atualizarResultados(); document.getElementById('novoResultadoBanner').style.display='none';">Atualizar meus dados agora</button>
-      `;
-      banner.style.display = 'block';
-    }
-  } catch (erro) {
-    // offline ou API fora do ar — não faz nada, o app continua normal
+  mostrarPremioBox(dados);
+
+  if (dados.concurso > MEGA_STATS.ultimo_concurso) {
+    const dezenas = dados.dezenas.map(Number).sort((a,b) => a-b);
+    const banner = document.getElementById('novoResultadoBanner');
+    banner.innerHTML = `
+      <div class="rb-titulo">🎉 Saiu o resultado do concurso ${dados.concurso}${dados.data ? ' (' + dados.data + ')' : ''}!</div>
+      <div class="rb-numeros">${dezenas.map(n => `<div class="rb-bola">${String(n).padStart(2,'0')}</div>`).join('')}</div>
+      <button onclick="atualizarResultados(); document.getElementById('novoResultadoBanner').style.display='none';">Atualizar meus dados agora</button>
+    `;
+    banner.style.display = 'block';
   }
 }
 
@@ -609,37 +689,38 @@ async function atualizarResultados() {
   let proximo = MEGA_STATS.ultimo_concurso + 1;
   let novos = 0;
   const LIMITE_SEGURANCA = 80; // não deixa entrar em loop indefinido
+  let falhaDeRede = false;
 
-  try {
-    while (novos < LIMITE_SEGURANCA) {
-      const resp = await fetch(`https://loteriascaixa-api.herokuapp.com/api/mega-sena/${proximo}`);
-      if (!resp.ok) break;
-      const dados = await resp.json();
-      if (!dados || !Array.isArray(dados.dezenas) || !dados.dezenas.length) break;
-
-      const dezenas = dados.dezenas.map(Number);
-      for (let n = 1; n <= 60; n++) {
-        if (dezenas.includes(n)) {
-          MEGA_STATS.frequencia[n] = (MEGA_STATS.frequencia[n] || 0) + 1;
-          MEGA_STATS.atraso[n] = 0;
-        } else {
-          MEGA_STATS.atraso[n] = (MEGA_STATS.atraso[n] || 0) + 1;
-        }
-      }
-      MEGA_STATS.total_concursos++;
-      MEGA_STATS.ultimo_concurso = proximo;
-      novos++;
-      proximo++;
+  while (novos < LIMITE_SEGURANCA) {
+    const dados = await fetchComFallbackCORS(`https://loteriascaixa-api.herokuapp.com/api/megasena/${proximo}`);
+    if (!dados) {
+      if (novos === 0) falhaDeRede = true; // nem o primeiro concurso deu certo — provável falta de internet
+      break;
     }
-  } catch (erro) {
-    btn.textContent = textoOriginal;
-    btn.disabled = false;
-    mostrarMsgAtualizacao('Não consegui buscar agora — confira sua internet e tente de novo em instantes.', 'erro');
-    return;
+    if (!Array.isArray(dados.dezenas) || !dados.dezenas.length) break;
+
+    const dezenas = dados.dezenas.map(Number);
+    for (let n = 1; n <= 60; n++) {
+      if (dezenas.includes(n)) {
+        MEGA_STATS.frequencia[n] = (MEGA_STATS.frequencia[n] || 0) + 1;
+        MEGA_STATS.atraso[n] = 0;
+      } else {
+        MEGA_STATS.atraso[n] = (MEGA_STATS.atraso[n] || 0) + 1;
+      }
+    }
+    MEGA_STATS.total_concursos++;
+    MEGA_STATS.ultimo_concurso = proximo;
+    novos++;
+    proximo++;
   }
 
   btn.textContent = textoOriginal;
   btn.disabled = false;
+
+  if (falhaDeRede) {
+    mostrarMsgAtualizacao('Não consegui buscar agora — confira sua internet e tente de novo em instantes.', 'erro');
+    return;
+  }
 
   if (novos > 0) {
     recalcularRankings();
