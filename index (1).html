@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0E1233">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mega dos Sonhos">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png" type="image/png">
+<title>Mega dos Sonhos — gerador de números</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+  :root {
+    --bg-top: #141a44;
+    --bg-bottom: #070a24;
+    --card-bg: #171B45;
+    --card-border: #2B2F63;
+    --gold-light: #FFE9A8;
+    --gold: #F2C879;
+    --gold-dark: #C99A3E;
+    --green-light: #6EE7A0;
+    --green: #22C55E;
+    --green-dark: #128A46;
+    --text-main: #F4F1E8;
+    --text-soft: #B7B3D8;
+    --text-mute: #8B87BE;
+    --text-faint: #6E6A9C;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: radial-gradient(ellipse 900px 500px at 50% -10%, #232a63 0%, var(--bg-top) 45%, var(--bg-bottom) 100%);
+    color: var(--text-main);
+    min-height: 100vh;
+    padding: 32px 16px 60px;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; }
+
+  header { text-align: center; margin-bottom: 28px; }
+  .crown-deco {
+    color: var(--gold);
+    font-size: 15px;
+    letter-spacing: 10px;
+    margin-bottom: 6px;
+    opacity: 0.9;
+  }
+  header h1 {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 800;
+    font-size: 38px;
+    margin: 0 0 10px;
+    background: linear-gradient(180deg, var(--gold-light) 10%, var(--gold) 55%, var(--gold-dark) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 2px 6px rgba(242,200,121,0.35));
+  }
+  header p { color: var(--text-soft); font-size: 14px; margin: 0; line-height: 1.5; }
+  header p b { color: var(--gold); }
+  header .src {
+    display: inline-block;
+    margin-top: 12px;
+    font-size: 11px;
+    color: var(--text-faint);
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+    padding: 5px 14px;
+  }
+
+  .card {
+    background: linear-gradient(160deg, #191E4E 0%, var(--card-bg) 100%);
+    border: 1px solid var(--card-border);
+    border-radius: 18px;
+    padding: 22px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  }
+  label { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 10px; }
+  textarea {
+    width: 100%;
+    min-height: 90px;
+    background: var(--bg-bottom);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    padding: 14px;
+    resize: vertical;
+  }
+  textarea:focus, select:focus, input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(242,200,121,0.15); }
+  .char-counter { text-align: right; font-size: 11px; color: var(--text-faint); margin-top: 4px; }
+
+  .row { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+  @media (min-width: 480px) {
+    .row { flex-direction: row; flex-wrap: wrap; gap: 12px; }
+  }
+  select {
+    width: 100%;
+    min-width: 0;
+    background: var(--bg-bottom);
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 12px 34px 12px 18px;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--gold) 50%), linear-gradient(135deg, var(--gold) 50%, transparent 50%);
+    background-position: calc(100% - 18px) center, calc(100% - 13px) center;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+  }
+  @media (min-width: 480px) {
+    select { flex: 1; width: auto; }
+  }
+
+  button.generate {
+    width: 100%;
+    margin-top: 16px;
+    background: linear-gradient(180deg, var(--green-light) 0%, var(--green) 55%, var(--green-dark) 100%);
+    color: #0B2E18;
+    border: none;
+    border-radius: 14px;
+    padding: 16px;
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(34,197,94,0.35), inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+  button.generate:active { transform: scale(0.99); }
+  button.generate:hover { filter: brightness(1.05); }
+
+  .balls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 18px 0 10px;
+    min-height: 56px;
+  }
+  .ball {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--gold-light) 0%, var(--gold) 55%, var(--gold-dark) 100%);
+    color: var(--card-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.35), inset 0 -2px 4px rgba(0,0,0,0.15);
+  }
+  .empty-hint { color: var(--text-faint); font-size: 13px; text-align: center; padding: 14px 0; }
+
+  .why { font-size: 13px; color: var(--text-soft); line-height: 1.6; border-top: 1px solid var(--card-border); padding-top: 14px; margin-top: 6px; }
+  .why b { color: var(--text-main); }
+  .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .tag { background: var(--card-border); color: #DCD9F5; font-size: 12px; padding: 3px 10px; border-radius: 999px; }
+
+  .disclaimer {
+    font-size: 12px;
+    color: var(--text-faint);
+    text-align: center;
+    line-height: 1.6;
+    margin-top: 22px;
+  }
+
+  /* ---- Abas ---- */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+    padding: 6px;
+    margin-bottom: 20px;
+  }
+  .tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-soft);
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 12px 8px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .tab-btn.active {
+    background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold) 100%);
+    color: var(--card-bg);
+    box-shadow: 0 4px 10px rgba(242,200,121,0.35);
+  }
+
+  /* ---- Numerologia & Signo ---- */
+  input[type="text"], input[type="date"], input[type="time"] {
+    width: 100%;
+    background: var(--bg-bottom);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    padding: 12px 14px;
+  }
+  .field { margin-bottom: 14px; }
+  .field label { margin-bottom: 6px; }
+  .field small { display:block; color: var(--text-faint); font-size:11px; margin-top:4px; }
+  .field-row { display: flex; gap: 12px; }
+  .field-row .field { flex: 1; }
+
+  .stars-deco { text-align:center; color:#3A3E75; font-size: 12px; letter-spacing: 6px; margin-bottom: 8px; }
+
+  .profile-card {
+    background: linear-gradient(160deg, #1B2050 0%, var(--card-bg) 100%);
+    border: 1px solid #3A3E86;
+    border-radius: 16px;
+    padding: 26px 22px;
+    text-align: center;
+  }
+  .profile-card .signo-emoji { font-size: 42px; line-height: 1; }
+  .profile-card .signo-nome {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 22px;
+    color: var(--gold);
+    margin: 6px 0 2px;
+  }
+  .profile-card .signo-sub { color: var(--text-mute); font-size: 12px; margin-bottom: 18px; }
+  .profile-card .nome-pessoa { color: #DCD9F5; font-size: 14px; margin-bottom: 4px; }
+
+  .num-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin: 16px 0;
+  }
+  .num-tile {
+    background: var(--bg-bottom);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 14px 8px;
+  }
+  .num-tile .num-big {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 30px;
+    font-weight: 600;
+    color: var(--gold);
+  }
+  .num-tile .num-label { font-size: 11px; color: var(--text-mute); margin-top: 2px; }
+
+  .sorte-box {
+    background: #22265A;
+    border: 1px solid #3A3E86;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 14px 0;
+  }
+  .sorte-box .sorte-principal {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 40px;
+    color: var(--gold);
+    font-weight: 600;
+  }
+  .sorte-box .sorte-label { font-size: 12px; color: var(--text-soft); }
+  .sorte-fav {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .sorte-fav .mini-ball {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--card-border);
+    color: var(--text-main);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600;
+  }
+
+  .dia-box {
+    border-top: 1px dashed var(--card-border);
+    margin-top: 16px;
+    padding-top: 16px;
+    text-align: center;
+  }
+  .dia-box .dia-num { font-family: 'Baloo 2', sans-serif; font-size: 26px; color: var(--gold); }
+  .dia-box p { font-size: 13px; color: var(--text-soft); margin: 6px 0 0; line-height: 1.5; }
+
+  .interp-list { margin-top: 20px; }
+  .interp-item {
+    background: var(--bg-bottom);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    text-align: left;
+  }
+  .interp-item .interp-head {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .interp-item .interp-num {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 20px;
+    color: var(--gold);
+  }
+  .interp-item .interp-titulo { font-size: 14px; font-weight: 600; color: var(--text-main); }
+  .interp-item .interp-tag { font-size: 11px; color: var(--text-mute); margin-bottom: 6px; }
+  .interp-item p { font-size: 13px; color: var(--text-soft); line-height: 1.55; margin: 4px 0; }
+  .interp-item .pts { font-size: 12px; color: #DCD9F5; }
+
+  .combinacao-box {
+    text-align: center;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--card-border);
+  }
+  .combinacao-box .combi-nums {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 22px;
+    color: var(--gold);
+    letter-spacing: 4px;
+    margin-top: 6px;
+  }
+
+  .error-msg {
+    color: #F29E9E;
+    font-size: 13px;
+    margin-top: 10px;
+    display: none;
+  }
+
+  .refazer-btn {
+    width: 100%;
+    margin-top: 16px;
+    background: transparent;
+    border: 1px solid var(--card-border);
+    color: var(--text-soft);
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .refazer-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* ---- Múltiplos jogos / histórico / gráfico (v3) ---- */
+  .jogo-bloco { margin-bottom: 18px; }
+  .jogo-bloco:last-child { margin-bottom: 0; }
+  .jogo-label { font-size: 12px; color: var(--text-mute); margin-bottom: 6px; text-align: center; }
+  .jogo-acoes { display: flex; justify-content: center; margin-top: 6px; }
+
+  .copy-btn {
+    background: transparent;
+    border: 1px solid var(--card-border);
+    color: var(--text-soft);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .copy-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .copy-btn.copiado { border-color: #7FBF8E; color: #7FBF8E; }
+
+  .historico-box { margin-top: 4px; }
+  .historico-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-soft);
+    padding: 8px 0;
+    border-bottom: 1px solid #1F2358;
+  }
+  .historico-item:last-child { border-bottom: none; }
+  .historico-numeros { color: var(--gold); font-family: 'Baloo 2', sans-serif; letter-spacing: 1px; }
+  .historico-vazio { font-size: 12px; color: var(--text-faint); text-align: center; padding: 6px 0; }
+  .historico-limpar { font-size: 11px; color: var(--text-faint); background: none; border: none; cursor: pointer; text-decoration: underline; margin-top: 8px; }
+
+  .freq-chart-wrap { margin-top: 6px; }
+  .freq-legend { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-faint); margin-top: 4px; }
+  .freq-bar-label { font-size: 10px; fill: var(--text-mute); }
+
+  .toggle-link {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-mute);
+    text-decoration: underline;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+
+  .update-msg {
+    font-size: 12px;
+    text-align: center;
+    margin-top: 10px;
+    padding: 8px;
+    border-radius: 8px;
+  }
+  .update-msg.ok { color: #7FBF8E; background: rgba(127,191,142,0.1); }
+  .update-msg.erro { color: #F29E9E; background: rgba(242,158,158,0.1); }
+  .update-msg.info { color: var(--text-mute); background: rgba(139,135,190,0.1); }
+
+  .resultado-banner {
+    background: linear-gradient(135deg, rgba(242,200,121,0.16), rgba(34,197,94,0.10));
+    border: 1px solid var(--gold-dark);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .resultado-banner .rb-titulo { font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 15px; color: var(--gold-light); margin-bottom: 6px; }
+  .resultado-banner .rb-numeros { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+  .resultado-banner .rb-bola {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--gold-light), var(--gold) 60%, var(--gold-dark));
+    color: #171B45; font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 12px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .resultado-banner button {
+    margin-top: 6px;
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold-light);
+    border-radius: 999px;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .premio-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+    padding: 10px 16px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    text-align: center;
+    flex-wrap: wrap;
+  }
+  .premio-box .premio-valor { font-family: 'Baloo 2', sans-serif; font-weight: 700; color: var(--gold); font-size: 15px; }
+  .premio-box .premio-info { color: var(--text-faint); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="crown-deco">★ &nbsp; 👑 &nbsp; ★</div>
+    <h1>Mega dos Sonhos</h1>
+    <p>Conte um sonho ou um desejo. Eu cruzo com o Livro dos Sonhos e com o histórico real de todos os 3.053 concursos da Mega-Sena (Loterias Caixa) pra te devolver <b>6 números</b>.</p>
+    <span class="src" id="srcBadge">📖 Base: O Livro dos Sonhos (L P Baçan) · concursos 1 a 3053</span>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" id="tabBtnMega" onclick="mudarAba('mega')">🎱 Mega dos Sonhos</button>
+    <button class="tab-btn" id="tabBtnNumero" onclick="mudarAba('numero')">🔮 Numerologia &amp; Signo</button>
+  </div>
+
+  <div id="premioBox" class="premio-box" style="display:none;"></div>
+  <div id="novoResultadoBanner" class="resultado-banner" style="display:none;"></div>
+
+  <div id="view-mega">
+
+  <div class="card">
+    <label for="dream">Descreva seu sonho, desejo ou sensação</label>
+    <textarea id="dream" maxlength="300" placeholder="Ex: sonhei que estava nadando no mar com minha mãe e via uma cobra dourada" oninput="document.getElementById('dreamCounter').textContent = this.value.length + '/300'"></textarea>
+    <div class="char-counter" id="dreamCounter">0/300</div>
+    <div class="row">
+      <select id="style">
+        <option value="mix">🔮 Misturar sonho + histórico</option>
+        <option value="dream">⭐ Só usar o significado do sonho</option>
+        <option value="hot">🔥 Só números mais sorteados</option>
+        <option value="cold">🧊 Só números mais atrasados</option>
+      </select>
+      <select id="qtdJogos">
+        <option value="1">🎲 1 jogo</option>
+        <option value="3" selected>🎲 3 jogos</option>
+        <option value="5">🎲 5 jogos</option>
+      </select>
+    </div>
+    <button class="generate" onclick="gerar()">✨ Gerar meus números →</button>
+  </div>
+
+  <div class="card">
+    <div id="jogosResultado" aria-live="polite">
+      <div class="empty-hint">Seus números aparecem aqui</div>
+    </div>
+    <div class="why" id="why" style="display:none;"></div>
+  </div>
+
+  <div class="card">
+    <label style="margin-bottom:12px;">📊 Frequência histórica das 60 dezenas</label>
+    <div class="freq-chart-wrap" id="freqChart"></div>
+    <div class="freq-legend"><span>menos sorteadas</span><span>mais sorteadas</span></div>
+    <div class="jogo-acoes" style="margin-top:12px;">
+      <button class="copy-btn" id="btnAtualizar" onclick="atualizarResultados()">🔄 Buscar concursos novos</button>
+    </div>
+    <div class="update-msg" id="updateMsg" style="display:none;"></div>
+  </div>
+
+  <div class="card">
+    <label style="margin-bottom:10px;">🕓 Histórico desta sessão</label>
+    <div class="historico-box" id="historicoBox">
+      <div class="historico-vazio">Os jogos que você gerar aparecem aqui enquanto a página estiver aberta.</div>
+    </div>
+  </div>
+
+  <p class="disclaimer">
+    Cada sorteio da Mega-Sena é independente e todo número tem a mesma probabilidade matemática de sair — nada aqui aumenta suas chances reais. Isso é uma ferramenta de diversão baseada em dados públicos (resultados oficiais até o concurso 3053) e na tradição popular do livro dos sonhos. Jogue com moderação.
+  </p>
+
+  </div><!-- /view-mega -->
+
+  <div id="view-numero" style="display:none;">
+
+    <div class="card" id="numeroForm">
+      <div class="stars-deco">✦ &nbsp; ✧ &nbsp; ✦</div>
+      <div class="field">
+        <label for="nomeInput">Nome completo</label>
+        <input type="text" id="nomeInput" placeholder="Ex: Maria da Silva">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="dataInput">Data de nascimento</label>
+          <input type="date" id="dataInput">
+        </div>
+        <div class="field">
+          <label for="horaInput">Hora (opcional)</label>
+          <input type="time" id="horaInput">
+        </div>
+      </div>
+      <div class="field">
+        <label for="cidadeInput">Cidade de nascimento (opcional)</label>
+        <input type="text" id="cidadeInput" placeholder="Ex: Ribeirão Preto, SP">
+        <small>Hora e cidade não entram nos cálculos de numerologia e signo — são só para você guardar no seu perfil.</small>
+      </div>
+      <button class="generate" onclick="calcularPerfil()">✨ Calcular meu perfil</button>
+      <div class="error-msg" id="numeroErro"></div>
+    </div>
+
+    <div id="numeroResultado" style="display:none;" aria-live="polite"></div>
+
+  </div><!-- /view-numero -->
+
+</div>
+
+<script>
+const MEGA_STATS = {"total_concursos": 3053, "ultimo_concurso": 3053,
+"frequencia": {"13": 313, "51": 308, "35": 322, "1": 298, "39": 293, "25": 299, "60": 296, "48": 284, "40": 290, "47": 291, "16": 317, "30": 326, "11": 323, "21": 259, "15": 275, "20": 296, "38": 325, "14": 300, "49": 310, "55": 263, "53": 347, "43": 321, "6": 311, "36": 309, "44": 321, "27": 328, "50": 299, "2": 304, "26": 250, "18": 291, "22": 275, "4": 321, "31": 284, "58": 299, "23": 320, "52": 307, "33": 327, "24": 306, "29": 300, "57": 288, "42": 326, "17": 324, "10": 356, "37": 329, "5": 332, "54": 317, "3": 282, "46": 319, "12": 283, "7": 285, "56": 318, "59": 292, "28": 313, "8": 301, "32": 325, "45": 299, "34": 323, "19": 295, "9": 292, "41": 311},
+"atraso": {"13": 0, "51": 0, "35": 0, "1": 0, "39": 0, "25": 0, "60": 1, "48": 1, "40": 1, "47": 1, "16": 1, "30": 1, "11": 2, "21": 2, "15": 2, "20": 2, "38": 2, "14": 3, "49": 3, "55": 3, "53": 4, "43": 4, "6": 4, "36": 4, "44": 5, "27": 5, "50": 5, "2": 5, "26": 6, "18": 6, "22": 6, "4": 6, "31": 6, "58": 6, "23": 7, "52": 7, "33": 7, "24": 7, "29": 8, "57": 8, "42": 8, "17": 9, "10": 10, "37": 10, "5": 11, "54": 12, "3": 13, "46": 15, "12": 17, "7": 18, "56": 18, "59": 18, "28": 19, "8": 19, "32": 22, "45": 23, "34": 26, "19": 27, "9": 33, "41": 41}};
+
+let quentes = Object.entries(MEGA_STATS.frequencia).sort((a,b)=>b[1]-a[1]).slice(0,15).map(e=>parseInt(e[0]));
+let frias = Object.entries(MEGA_STATS.atraso).sort((a,b)=>b[1]-a[1]).slice(0,15).map(e=>parseInt(e[0]));
+
+function recalcularRankings() {
+  quentes = Object.entries(MEGA_STATS.frequencia).sort((a,b)=>b[1]-a[1]).slice(0,15).map(e=>parseInt(e[0]));
+  frias = Object.entries(MEGA_STATS.atraso).sort((a,b)=>b[1]-a[1]).slice(0,15).map(e=>parseInt(e[0]));
+}
+
+function mostrarMsgAtualizacao(texto, tipo) {
+  const el = document.getElementById('updateMsg');
+  el.textContent = texto;
+  el.className = 'update-msg ' + tipo;
+  el.style.display = 'block';
+}
+
+// Busca, direto no navegador de quem estiver usando o app (não daqui do meu
+// ambiente de teste), os concursos da Mega-Sena mais recentes que o que já
+// está embutido no arquivo, e atualiza frequência/atraso incrementalmente.
+// Só funciona com o arquivo aberto num navegador com internet — se a API
+// estiver fora do ar, bloquear CORS, ou não houver conexão, falha de forma
+// silenciosa e avisa, sem quebrar o resto do app.
+// A API muda um pouco os nomes dos campos de valor dependendo da versão —
+// aqui a gente tenta todos os formatos conhecidos: string já pronta
+// ("R$ 7 Milhões") ou número puro (precisa formatar como moeda).
+function formatarValorPremio(dados) {
+  const bruto = dados.acumuladaProxConcurso
+    ?? dados.valorEstimadoProximoConcurso
+    ?? dados.valorAcumuladoProximoConcurso
+    ?? null;
+  if (bruto === null || bruto === undefined || bruto === '') return null;
+  if (typeof bruto === 'string') return bruto.trim();
+  if (typeof bruto === 'number' && bruto > 0) {
+    return bruto.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+  }
+  return null;
+}
+
+function mostrarPremioBox(dados) {
+  const valor = formatarValorPremio(dados);
+  if (!valor) return;
+  const proxConcurso = dados.proxConcurso || dados.numeroConcursoProximo || (dados.concurso ? dados.concurso + 1 : null);
+  const dataProx = dados.dataProxConcurso || dados.dataProximoConcurso;
+  const box = document.getElementById('premioBox');
+  box.innerHTML = `💰 Estimativa do próximo prêmio: <span class="premio-valor">${valor}</span>` +
+    (proxConcurso ? `<span class="premio-info">· concurso ${proxConcurso}${dataProx ? ' em ' + dataProx : ''}</span>` : '');
+  box.style.display = 'flex';
+}
+
+// Ao abrir o app, checa (silenciosamente, sem travar nada se falhar) se já
+// saiu um concurso mais novo que o embutido no arquivo, e mostra um banner
+// avisando o resultado — sem precisar a pessoa clicar em nada.
+async function verificarUltimoResultado() {
+  try {
+    const resp = await fetch('https://loteriascaixa-api.herokuapp.com/api/mega-sena/latest');
+    if (!resp.ok) return;
+    const dados = await resp.json();
+    if (!dados || !dados.concurso || !Array.isArray(dados.dezenas)) return;
+
+    mostrarPremioBox(dados);
+
+    if (dados.concurso > MEGA_STATS.ultimo_concurso) {
+      const dezenas = dados.dezenas.map(Number).sort((a,b) => a-b);
+      const banner = document.getElementById('novoResultadoBanner');
+      banner.innerHTML = `
+        <div class="rb-titulo">🎉 Saiu o resultado do concurso ${dados.concurso}${dados.data ? ' (' + dados.data + ')' : ''}!</div>
+        <div class="rb-numeros">${dezenas.map(n => `<div class="rb-bola">${String(n).padStart(2,'0')}</div>`).join('')}</div>
+        <button onclick="atualizarResultados(); document.getElementById('novoResultadoBanner').style.display='none';">Atualizar meus dados agora</button>
+      `;
+      banner.style.display = 'block';
+    }
+  } catch (erro) {
+    // offline ou API fora do ar — não faz nada, o app continua normal
+  }
+}
+
+async function atualizarResultados() {
+  const btn = document.getElementById('btnAtualizar');
+  const textoOriginal = btn.textContent;
+  btn.textContent = 'Buscando...';
+  btn.disabled = true;
+
+  let proximo = MEGA_STATS.ultimo_concurso + 1;
+  let novos = 0;
+  const LIMITE_SEGURANCA = 80; // não deixa entrar em loop indefinido
+
+  try {
+    while (novos < LIMITE_SEGURANCA) {
+      const resp = await fetch(`https://loteriascaixa-api.herokuapp.com/api/mega-sena/${proximo}`);
+      if (!resp.ok) break;
+      const dados = await resp.json();
+      if (!dados || !Array.isArray(dados.dezenas) || !dados.dezenas.length) break;
+
+      const dezenas = dados.dezenas.map(Number);
+      for (let n = 1; n <= 60; n++) {
+        if (dezenas.includes(n)) {
+          MEGA_STATS.frequencia[n] = (MEGA_STATS.frequencia[n] || 0) + 1;
+          MEGA_STATS.atraso[n] = 0;
+        } else {
+          MEGA_STATS.atraso[n] = (MEGA_STATS.atraso[n] || 0) + 1;
+        }
+      }
+      MEGA_STATS.total_concursos++;
+      MEGA_STATS.ultimo_concurso = proximo;
+      novos++;
+      proximo++;
+    }
+  } catch (erro) {
+    btn.textContent = textoOriginal;
+    btn.disabled = false;
+    mostrarMsgAtualizacao('Não consegui buscar agora — confira sua internet e tente de novo em instantes.', 'erro');
+    return;
+  }
+
+  btn.textContent = textoOriginal;
+  btn.disabled = false;
+
+  if (novos > 0) {
+    recalcularRankings();
+    renderFreqChart();
+    const badge = document.getElementById('srcBadge');
+    badge.textContent = `📖 Base: O Livro dos Sonhos (L P Baçan) · concursos 1 a ${MEGA_STATS.ultimo_concurso}`;
+    mostrarMsgAtualizacao(`Atualizado! ${novos} concurso(s) novo(s) — dados agora até o concurso ${MEGA_STATS.ultimo_concurso}.`, 'ok');
+  } else {
+    mostrarMsgAtualizacao('Seus dados já estão em dia, nenhum concurso novo encontrado.', 'info');
+  }
+}
+
+const DREAM_DICT = {"abacate": [34, 35, 52], "abacaxi": [4, 21, 23], "abelha": [14, 17, 57], "abismo": [3, 7, 44], "abobora": [2, 19, 25], "aborto": [11, 14, 19], "abotoar": [5, 25, 26], "abraco": [9, 24, 56], "abrigo": [6, 22, 51], "absolvicao": [13, 18, 36], "academia": [20, 29, 30], "acampamento": [14, 33, 49], "acidente": [19, 24, 41], "acordeao": [28, 34, 39], "acougue": [4, 16, 36], "acucar": [26, 29, 36], "acucareiro": [1, 27, 39], "acude": [1, 3, 7], "acusacao": [12, 30, 41], "adulacao": [4, 11, 56], "adulterio": [10, 15, 50], "adversario": [8, 17, 48], "advogado": [3, 18, 60], "aeroplano": [16, 37, 51], "aeroporto": [2, 16, 21], "afago": [15, 38, 41], "afiador": [7, 16, 25], "afiar": [23, 38, 44], "afilhado": [7, 28], "afinar": [4, 23, 30], "aflicao": [14, 33, 35], "afogamento": [17, 28, 44], "agarrar": [1, 4, 16], "agasalho": [11, 31], "agitacao": [34, 42, 60], "agressao": [10, 25, 31], "agriao": [13, 17], "agua": [17, 37, 52], "aguardente": [28, 36, 46], "aguia": [16, 58, 59], "agulha": [29, 35, 54], "aipim": [8, 30, 49], "alcool": [9, 26, 43], "aldeia": [8, 18, 20], "alecrim": [15, 29, 39], "alegria": [1, 33, 45], "alfaiate": [5, 32, 58], "alface": [28, 36, 58], "alfafa": [24, 28, 38], "alfinete": [4, 9, 56], "algema": [2, 4, 34], "algodao": [22, 41, 48], "alho": [15, 37, 51], "alianca": [4, 41, 48], "alimento": [3, 24, 27], "almoco": [18, 20, 55], "altar": [5, 23, 37], "altofalante": [21, 47, 54], "aluguel": [22, 33, 42], "amamentar": [26, 39, 42], "amante": [11, 22, 50], "amarrar": [2, 4, 41], "ambulancia": [6, 7, 37], "amigo": [25, 35, 41], "anao": [5, 25, 28], "ancora": [2, 6, 38], "andaime": [9, 10, 36], "andorinha": [39, 57, 59], "andrajo": [2, 11, 57], "anedota": [15, 29], "anel": [1, 6, 31], "animal": [10, 23, 25], "aniversario": [26, 54, 57], "anjo": [10, 15, 21], "anzol": [16, 23, 51], "aparicao": [17, 30, 58], "apartamento": [16, 42, 53], "aperitivo": [5, 19, 50], "apetite": [10, 35, 54], "aplauso": [6, 26, 29], "aposento": [15, 19, 42], "aposta": [14, 15, 44], "aquario": [14, 19, 31], "ar": [5, 38, 40], "arado": [1, 5, 47], "arco": [9, 28, 36], "arcoiris": [10, 17, 60], "areia": [4, 8, 18], "arena": [18, 32, 57], "armadura": [11, 34, 38], "armario": [12, 28, 54], "arranhao": [21, 27, 43], "arroz": [17, 20, 31], "artista": [1, 9, 39], "arvore": [3, 14, 39], "asfixia": [17, 21, 26], "asilo": [12, 49, 56], "asma": [10, 25, 27], "asno": [7, 12, 20], "assado": [12, 33, 44], "assalto": [12, 26, 52], "assassinato": [22, 56, 59], "assassino": [5, 14, 27], "assembleia": [4, 19, 22], "assinatura": [17, 21, 34], "assobio": [23, 24, 30], "ataque": [13, 17, 24], "ataude": [8, 10, 36], "ator": [13, 21, 33], "atriz": [27, 33, 49], "automovel": [8, 19, 32], "autor": [3, 39, 43], "autoridade": [1, 12, 33], "avarento": [11, 21, 36], "avenida": [3, 8], "avental": [14, 39, 49], "ave": [24, 32, 52], "avestruz": [25, 26, 30], "aviao": [21, 28, 55], "aviso": [1, 7, 18], "avos": [3, 50, 59], "azeite": [28, 36, 55], "azeitona": [8, 26, 45], "azulejo": [9, 24, 53], "babador": [37, 56], "bacalhau": [4, 8, 53], "bacia": [35, 38, 46], "bagagem": [27, 39, 40], "bailarino": [6, 17, 29], "baile": [32, 34, 55], "bainha": [2, 7, 52], "baioneta": [29, 53], "balanca": [5, 28, 32], "balao": [36, 43, 58], "balcao": [24, 25, 35], "balde": [12, 23, 30], "baleia": [12, 32, 50], "bananeira": [19, 44, 58], "banco": [11, 13, 56], "banco comercial": [22, 26, 38], "bandeira": [22, 30, 52], "bandeja": [15, 21, 45], "bandido": [9, 12, 38], "banho": [12, 43, 57], "bar": [1, 16, 46], "baralho": [10, 29, 54], "barata": [13, 17, 55], "barba": [8, 10, 12], "barbeiro": [9, 16, 34], "barco": [13, 40, 60], "barraco": [45, 50, 51], "bastao": [25, 29, 33], "batalha": [2, 18, 49], "batata": [4, 16, 51], "bater": [24, 26, 39], "bateria": [23, 39, 57], "batizado": [8, 22, 53], "bau": [3, 12, 55], "bazar": [9, 14, 42], "bebado": [9, 25, 33], "bebe": [33, 46, 60], "beber": [45, 46, 59], "bebida": [5, 24, 47], "beijo": [11, 26, 32], "bencao": [22, 35], "bengala": [24, 42, 53], "berco": [24, 37, 40], "besouro": [20, 33, 37], "besta": [9, 28, 60], "bezerro": [5, 14, 51], "bibelo": [15, 19, 21], "biblia": [6, 9, 35], "biblioteca": [11, 40, 43], "bicicleta": [26, 36, 37], "bife": [7, 18, 37], "bigode": [16, 44, 50], "bigorna": [8, 45, 50], "bilhar": [6, 8, 46], "bilhete": [1, 25, 31], "binoculo": [12, 26, 35], "biscoito": [8, 20, 53], "bispo": [9, 52, 60], "boca": [4, 16], "bode": [5, 15, 39], "bofetada": [2, 11, 18], "bolacha": [3, 15, 32], "bolo": [8, 10, 26], "bomba": [28, 37, 39], "bombeiro": [32, 52, 60], "bonde": [3, 30, 42], "bone": [14, 29, 43], "boneca": [52, 57, 59], "borboleta": [13, 26, 54], "bordado": [18, 30, 42], "bordel": [3, 8, 28], "bosque": [28, 37, 57], "bota": [1, 24, 29], "botina": [21, 39, 51], "botao": [3, 16, 26], "bracelete": [12, 24, 39], "braco": [1, 32, 58], "braseiro": [16, 29, 44], "brinco": [21, 25, 26], "brinquedo": [17, 30, 40], "bruxa": [18, 21, 28], "bule": [18, 28, 29], "buraco": [8, 19, 49], "burro": [13, 26, 46], "busto": [25, 39, 45], "buzina": [6, 40, 57], "cabaca": [18, 30, 39], "cabeca": [17, 28, 35], "cabelo": [23, 28, 35], "cabide": [27, 34, 37], "cabra": [29, 50, 60], "cacada": [2, 20, 45], "cachimbo": [18, 23, 37], "cachorro": [3, 8, 40], "cadaver": [3, 18, 47], "cadeado": [3, 6, 55], "cadeia": [12, 29, 32], "cadeira": [16, 24, 29], "cadela": [6, 23, 29], "cafe": [22, 43, 45], "cafeteira": [10, 42, 60], "caipira": [8, 13, 56], "caixa": [11, 14, 60], "caixao": [5, 22, 29], "caju": [1, 34, 41], "cal": [6, 7, 33], "calcada": [33, 34, 60], "calcado": [8, 23, 24], "caldeirao": [11, 22, 28], "calice": [18, 28, 29], "caldo": [4, 48, 49], "calo": [12, 13, 31], "calor": [11, 22, 40], "calvicie": [25, 27, 34], "cama": [14, 33, 48], "camarao": [23, 36, 51], "camelo": [9, 18, 33], "caminho": [7, 20, 22], "camisa": [9, 28, 40], "camisola": [5, 14, 51], "campanario": [39, 46, 58], "campo": [10, 35, 56], "cana": [11, 18, 53], "canario": [38, 49, 57], "cancer": [9, 22, 36], "candeeiro": [17, 40, 50], "canguru": [6, 9, 11], "canhao": [22, 30, 33], "canivete": [10, 28, 34], "cansaco": [30, 48, 49], "canto": [13, 35, 48], "capacete": [22, 34, 50], "capuz": [18, 27, 32], "cara": [23, 28, 55], "careta": [1, 36, 60], "caridade": [3, 6, 20], "carnaval": [19, 36, 39], "carne": [19, 38, 46], "carneiro": [9, 29, 56], "carro": [5, 10, 17], "carroca": [15, 19, 30], "carta": [44, 54, 60], "carteira": [2, 20, 43], "carteiro": [20, 32, 37], "cartomante": [14, 16, 58], "cartucho": [5, 8, 52], "carvao": [36, 39, 60], "carvoeiro": [9, 13, 15], "casa": [6, 21, 26], "casamento": [8, 14, 25], "castelo": [15, 16, 56], "cataplasma": [18, 32, 44], "cavalaria": [21, 24], "cavaleiro": [1, 24, 43], "cavalo": [5, 21, 38], "cavar": [27, 30, 54], "caveira": [2, 20, 38], "caverna": [6, 37, 39], "cebola": [21, 37, 46], "cego": [14, 18, 26], "cegonha": [1, 9, 54], "celeiro": [5, 10, 35], "cemiterio": [5, 26, 27], "centeio": [17, 20, 22], "cera": [14, 15, 25], "cereja": [11, 13, 36], "cerimonia": [31, 38, 44], "cerveja": [12, 17, 49], "cesto": [2, 19, 25], "ceu": [24, 27, 41], "cha": [28, 31, 34], "chaleira": [37, 52, 58], "chamine": [2, 5, 42], "chapeu": [17, 37, 59], "charuto": [30, 31, 59], "chave": [6, 18], "chicote": [4, 37, 41], "chifre": [25, 32, 46], "chinelo": [27, 53, 55], "chocolate": [28, 30, 41], "chorar": [2, 11, 17], "chuchu": [11, 24, 33], "chumbo": [2, 24, 35], "chuva": [8, 9, 32], "cidade": [16, 19, 39], "cigano": [12, 33, 37], "cigarra": [38, 47, 54], "cigarro": [4, 11, 26], "cinema": [30, 37, 60], "cinto": [12, 20, 32], "cinza": [16, 31, 54], "circo": [19, 21, 24], "cirurgiao": [24, 37, 60], "cisne": [2, 16, 17], "cisterna": [6, 23, 52], "ciume": [5, 26, 46], "clarao": [2, 19], "claridade": [30, 39, 49], "claustro": [11, 42, 49], "cobertor": [8, 25, 27], "cobra": [44, 56, 60], "cocheira": [6, 30, 42], "coelho": [8, 13, 25], "cofre": [15, 20, 21], "colar": [16, 25, 33], "colarinho": [2, 7, 41], "colchao": [16, 17, 58], "colegio": [30, 56, 59], "colheita": [5, 31, 59], "colher": [3, 50, 60], "colibri": [15, 16, 43], "comadre": [4, 13, 52], "combate": [15, 22, 55], "comedia": [12, 19, 39], "comer": [3, 22, 29], "comercio": [9, 25, 26], "cometa": [15, 33, 39], "comoda": [8, 21, 43], "compadre": [17, 28, 51], "compasso": [39, 52, 60], "compra": [15, 27, 36], "comunhao": [4, 16, 31], "confissao": [9, 27, 36], "conselho": [11, 23, 45], "conserva": [4, 15, 51], "construcao": [27, 38, 60], "consulta": [8, 9, 55], "convento": [18, 31, 47], "conversar": [10, 17, 56], "convidado": [16, 39, 40], "convite": [16, 36, 38], "copo": [19, 20, 35], "cor": [13, 18, 33], "coracao": [5, 26, 54], "corcunda": [16, 36, 46], "corda": [8, 13, 19], "cordao": [4, 10, 37], "cordeiro": [20, 22, 32], "corneta": [30, 48, 58], "corno": [5, 21, 23], "coronel": [20, 30, 35], "corpo": [33, 35, 38], "corrente": [13, 19, 54], "correr": [30, 43, 57], "correspondencia": [6, 23, 30], "corrida": [1, 3, 44], "cortejo": [4, 34, 46], "cortina": [12, 24, 28], "coruja": [1, 3, 31], "corvo": [40, 53, 59], "costas": [9, 32, 35], "costela": [6, 16, 26], "couro": [2, 11, 19], "couve": [10, 14, 43], "cova": [8, 13, 38], "covil": [3, 13, 35], "coxo": [6, 14, 35], "cozinha": [16, 18, 47], "credor": [6, 15, 28], "crianca": [16, 19, 60], "criminoso": [6, 30, 40], "cristal": [2, 5], "cristo": [4, 19, 26], "crocodilo": [8, 45], "crucifixo": [10, 23], "cruz": [10, 23, 24], "cunhado": [1, 20, 59], "curral": [12, 35, 38], "dado": [4, 11, 44], "danca": [9, 30, 51], "dancarina": [2, 19, 21], "data": [2, 4, 12], "dedo": [8, 24, 42], "defunto": [29, 51, 58], "deitar": [23, 44, 57], "dente": [3, 22, 33], "dentista": [14, 22, 51], "desabamento": [2, 18, 28], "descer": [26, 37, 42], "descoberta": [9, 32, 36], "desejo": [9, 19, 30], "desenho": [29, 39, 47], "desenterrar": [2, 37, 60], "deserto": [19, 30, 42], "desgosto": [11, 42, 58], "desmaio": [13, 42, 46], "despedida": [19, 22, 50], "despido": [22, 25, 32], "desprezo": [5, 27, 34], "deus": [3, 20, 47], "dia": [1, 45, 57], "diabo": [9, 21, 36], "diadema": [4, 30, 51], "diamante": [9, 11, 19], "dicionario": [15, 36, 49], "digestao": [17, 28, 39], "diluvio": [8, 21, 34], "dinheiro": [35, 44, 59], "discordia": [2, 20, 60], "discurso": [9, 30, 45], "discussao": [6, 11, 58], "divida": [6, 19, 32], "divorcio": [3, 15, 38], "doce": [8, 9, 34], "doenca": [9, 28, 37], "doente": [11, 20, 22], "donativo": [24, 25, 31], "dor": [9, 22, 34], "dormir": [4, 33, 35], "drama": [6, 24, 29], "duelo": [4, 19, 30], "eclipse": [10, 23, 35], "eco": [5, 51, 60], "edificio": [2, 19, 27], "egua": [12, 29, 44], "elefante": [30, 31, 40], "eleicao": [7, 17, 27], "elevador": [17, 27, 30], "emagrecer": [34, 40, 50], "emboscada": [8, 29, 36], "embriaguez": [1, 32, 38], "embrulho": [28, 30, 56], "emprego": [1, 19, 54], "emprestimo": [9, 29, 30], "enfermeiro": [10, 21, 33], "enfermo": [11, 26, 38], "enforcado": [12, 16, 28], "engano": [14, 25, 38], "engasgo": [10, 33, 37], "enterrado": [8, 24, 50], "enterro": [23, 29, 44], "enxoval": [5, 32, 56], "ermitao": [44, 45, 47], "ervilha": [1, 11, 18], "escada": [6, 35, 38], "escafandro": [6, 32, 56], "escorpiao": [32, 34, 53], "escola": [7, 25, 41], "escova": [23, 25, 37], "excremento": [13, 19, 24], "escrever": [35, 48, 51], "escritorio": [10, 23, 59], "escrivaninha": [2, 10, 23], "escuridao": [15, 17, 44], "esmeralda": [15, 22, 34], "esmola": [6, 9, 25], "espada": [7, 14, 39], "espelho": [5, 16, 52], "espiao": [17, 39, 49], "espingarda": [18, 35, 55], "espinho": [2, 18, 30], "espirito": [14, 41, 60], "esponja": [4, 13, 34], "esposa": [24, 34, 51], "espuma": [21, 33, 42], "esqueleto": [17, 24, 60], "esquife": [8, 14, 34], "estampa": [20, 31, 38], "estante": [4, 8, 42], "estatua": [17, 39, 60], "esteira": [29, 38, 44], "estojo": [22, 36, 53], "estomago": [28, 48, 58], "estrada": [12, 32, 39], "estrebaria": [13, 23, 59], "estrela": [7, 18, 45], "estrume": [7, 9, 29], "estudo": [26, 30, 31], "estufa": [24, 43, 47], "evangelho": [15, 26, 40], "exercito": [13, 37, 44], "exilio": [13, 22, 54], "explosao": [14, 28, 52], "exposicao": [22, 39, 42], "fabrica": [5, 16, 34], "fabula": [7, 21, 38], "faca": [29, 36], "facada": [15, 16, 40], "fachada": [38, 51, 55], "fada": [18, 42, 54], "falar": [24, 31, 39], "falencia": [9, 18], "familia": [29, 39, 51], "fantasma": [7, 9, 55], "fardo": [6, 10, 32], "farinha": [4, 17, 34], "farmacia": [5, 23, 34], "farol": [16, 21, 30], "favor": [21, 49, 55], "febre": [7, 27, 56], "fechadura": [9, 18, 31], "feijao": [17, 35, 52], "feira": [12, 18, 20], "feiticeiro": [13, 23, 31], "fera": [10, 21, 54], "ferias": [3, 17, 32], "ferradura": [6, 14, 35], "ferrar": [25, 28, 32], "ferreiro": [5, 12, 21], "ferro": [19, 34, 58], "festa": [9, 14, 28], "figado": [10, 20, 36], "figo": [11, 25, 31], "filho": [39, 42, 56], "fio": [10, 20, 51], "firmamento": [16, 29, 60], "fita": [6, 15, 27], "flauta": [12, 23, 30], "flecha": [3, 26, 49], "flor": [15, 18, 20], "floresta": [4, 32, 39], "fogao": [9, 26, 44], "fogo": [35, 38, 41], "foguete": [25, 28, 30], "folha": [23, 32, 38], "fome": [13, 21, 56], "fonte": [21, 49, 56], "forca": [35, 54, 60], "formiga": [22, 46, 53], "formigueiro": [7, 13, 44], "forno": [12, 20, 25], "forragem": [29, 38, 59], "fortaleza": [9, 54, 57], "fosforo": [5, 43, 53], "fosso": [5, 15, 19], "frade": [2, 30, 38], "freira": [7, 29, 36], "frio": [19, 29, 33], "fumaca": [3, 36, 40], "fumar": [3, 28, 34], "fumo": [13, 20, 33], "fuzil": [2, 25, 60], "fuzilamento": [17, 30, 48], "gabinete": [4, 26, 33], "gado": [7, 30, 60], "gago": [3, 12, 31], "gaiola": [12, 31, 60], "galinha": [30, 54, 55], "galo": [11, 19, 45], "ganso": [5, 16, 18], "garfo": [10, 32, 53], "garganta": [6, 10, 31], "garrafa": [11, 17, 34], "gato": [25, 36, 57], "gaveta": [8, 34, 54], "gaviao": [19, 28, 60], "gay": [26, 27, 38], "geleia": [1, 16, 26], "gelo": [11, 24, 34], "gemeos": [26, 30, 59], "general": [19, 36, 47], "gengiva": [27, 30, 42], "genro": [21, 35, 59], "gigante": [10, 24, 29], "ginastica": [11, 17, 33], "girafa": [10, 32, 53], "golfe": [6, 22, 34], "gordura": [28, 29, 60], "gota": [25, 33, 53], "grade": [2, 35, 39], "granja": [4, 14, 27], "gravata": [20, 23, 44], "gravidez": [16, 28, 35], "greve": [15, 23, 58], "grinalda": [28, 31, 40], "grito": [11, 12, 18], "guardachuva": [16, 17, 60], "guerra": [12, 27, 33], "guindaste": [5, 10, 42], "guitarra": [15, 23, 37], "habitacao": [15, 16, 31], "harpa": [8, 20, 22], "hemorragia": [2, 23, 27], "heranca": [1, 26, 38], "hidrofobia": [4, 15, 55], "hino": [16, 32, 45], "homem": [4, 10, 24], "honrarias": [2, 49, 53], "horas": [3, 8, 36], "hospital": [10, 12, 43], "hostia": [11, 16, 40], "hotel": [5, 7, 26], "idolo": [39, 50, 53], "igreja": [3, 31, 60], "ilha": [7, 15, 19], "iluminacao": [6, 15, 24], "imagem": [8, 44, 53], "imposto": [8, 31, 38], "impotencia": [5, 24, 34], "incendio": [1, 21, 60], "indigestao": [6, 35, 56], "inferno": [3, 13, 37], "inflamacao": [2, 22, 57], "infortunio": [9, 21, 35], "ingratidao": [17, 34, 41], "inimigo": [4, 24, 29], "injuria": [7, 34, 42], "injustica": [1, 12, 27], "inquerito": [8, 9, 21], "instrumento musical": [4, 10, 20], "insulto": [11, 22, 36], "intestinos": [6, 25, 31], "inundacao": [17, 27, 33], "invalidez": [3, 21, 32], "inveja": [9, 17, 22], "inverno": [18, 34, 57], "irmao": [18, 21, 41], "jabuticaba": [20, 26, 36], "jacare": [4, 8, 34], "janela": [14, 35, 50], "jantar": [15, 21, 53], "jardim": [15, 16, 48], "javali": [8, 11, 46], "jejum": [1, 14, 58], "jesus": [1, 20, 59], "joelho": [15, 27, 53], "jogo": [9, 20, 22], "joia": [4, 11, 18], "joquei": [24, 30, 55], "jornal": [13, 39, 44], "juiz": [6, 26, 31], "julgamento": [8, 9, 18], "jumento": [2, 7, 59], "juramento": [39, 41, 60], "juri": [32, 53, 60], "justica": [9, 10, 55], "la": [1, 29, 51], "labio": [6, 21, 58], "laboratorio": [6, 9, 25], "laco": [9, 49, 60], "ladrao": [49, 54, 57], "ladrilho": [3, 29, 39], "lagarta": [2, 40, 49], "lagarto": [2, 4, 56], "lago": [4, 10, 30], "lagoa": [21, 37, 60], "lagosta": [9, 44, 46], "lagrima": [2, 11, 27], "lama": [20, 32, 42], "lamparina": [16, 31, 57], "lampiao": [17, 34, 56], "lanterna": [30, 49, 58], "lapis": [2, 22, 49], "laranja": [26, 38, 47], "laranjeira": [26, 38, 47], "lavar": [12, 27, 36], "lavatorio": [5, 20, 55], "lavrador": [4, 11, 59], "leao": [1, 23, 50], "lebre": [25, 37, 38], "legume": [10, 24, 37], "leilao": [10, 31, 48], "leite": [12, 22, 55], "leito": [23, 36, 60], "leitura": [10, 28, 37], "lenco": [26, 35, 39], "lencol": [1, 4, 14], "leque": [10, 21, 38], "letra": [4, 19, 46], "licor": [5, 39, 52], "ligas": [26, 29, 30], "lima": [5, 7, 53], "limao": [1, 23, 27], "lingua": [12, 14, 27], "livro": [15, 19, 47], "lobo": [41, 56, 60], "locomotiva": [11, 25, 47], "loteria": [6, 14, 38], "louco": [38, 41, 56], "lua": [25, 36, 46], "lucros": [14, 31, 60], "luneta": [3, 8, 29], "luta": [7, 21, 32], "luva": [13, 22, 37], "luz": [12, 28, 36], "maca": [30, 53, 60], "macaco": [7, 11, 60], "macarrao": [5, 32, 41], "macaxeira": [13, 28, 43], "machado": [5, 31, 33], "macieira": [5, 25, 29], "madeira": [17, 31, 32], "madrasta": [27, 39, 60], "madrinha": [16, 26, 29], "mae": [4, 8, 34], "magia": [1, 3, 52], "magreza": [27, 51, 59], "mala": [19, 23, 37], "mamao": [12, 37, 47], "manha": [17, 48, 52], "manta": [23, 41, 53], "manteiga": [28, 39, 48], "mao": [21, 30, 50], "maquina": [10, 28, 54], "marido": [1, 27, 43], "marinheiro": [19, 23, 31], "mariposa": [13, 25], "marmelada": [12, 26, 33], "marmore": [13, 31, 50], "martelo": [3, 7, 59], "mascara": [12, 14, 25], "matar": [12, 25, 34], "mate": [1, 43, 47], "mato": [1, 25, 31], "mecha": [24, 28, 41], "medalha": [12, 22, 41], "medico": [14, 15, 26], "medo": [14, 22, 31], "meia": [14, 22, 32], "mel": [1, 25], "melao": [17, 32, 45], "mendigo": [12, 27], "menino": [2, 48, 60], "mensageiro": [3, 36, 47], "mentira": [1, 5, 24], "mercado": [2, 57, 60], "mesa": [32, 48, 50], "metralhadora": [2, 5, 44], "metro": [32, 36, 52], "milho": [9, 17, 56], "militar": [35, 48, 53], "milionario": [7, 31, 52], "mina": [18, 35, 60], "missa": [8, 9, 10], "mobilia": [37, 40, 42], "moca": [5, 14, 47], "mocidade": [5, 8, 14], "moeda": [19, 31, 50], "moer": [9, 18, 24], "moinho": [1, 33, 58], "monstro": [14, 36, 50], "montanha": [14, 22, 31], "monumento": [7, 29, 35], "morango": [9, 13, 35], "morcego": [3, 14, 36], "mordaca": [19, 44, 60], "mordida": [24, 26, 50], "mortalha": [8, 14, 49], "morte": [7, 16, 31], "morto": [3, 9, 18], "mosca": [24, 34, 48], "motor": [17, 31, 38], "motorista": [18, 20, 34], "mudanca": [1, 6, 39], "mudo": [22, 37, 46], "muleta": [14, 29, 43], "mulher": [8, 17, 46], "multa": [4, 26, 37], "multidao": [26, 29, 38], "muro": [12, 41, 57], "musica": [3, 17, 36], "nadar": [25, 36, 51], "namorado": [1, 15, 39], "nariz": [2, 12, 13], "nascimento": [11, 24, 51], "naufragio": [1, 15, 35], "navalha": [43, 45, 56], "navio": [1, 4, 56], "neblina": [24, 39, 60], "negro": [7, 49, 54], "neve": [38, 39, 41], "ninho": [12, 18, 59], "no": [3, 10, 32], "nobre": [13, 16, 33], "noite": [18, 36, 37], "noivo": [1, 38, 58], "nora": [2, 5, 30], "noticias": [26, 33, 51], "nozes": [34, 43, 57], "nu": [36, 46, 50], "numero": [8, 23, 60], "nuvem": [1, 14, 59], "obelisco": [2, 17, 36], "oculista": [2, 34, 45], "oculos": [31, 57, 60], "odio": [7, 10, 22], "ofensa": [15, 16, 43], "oleo": [21, 28, 51], "olho": [11, 32, 57], "onca": [3, 13, 33], "operario": [12, 24, 53], "orador": [7, 8, 41], "oratorio": [25, 56, 60], "orelha": [6, 44, 48], "orfao": [2, 40], "orgao": [2, 26, 27], "orgaos sexuais": [1, 7, 13], "osso": [16, 23, 27], "ostra": [1, 22, 28], "ourives": [23, 49, 51], "ouro": [23, 30, 56], "ovelha": [13, 19, 39], "ovo": [5, 36, 37], "pa": [10, 27], "padeiro": [8, 34, 44], "padre": [3, 43, 45], "padrinho": [31, 55, 60], "pagamento": [3, 20, 47], "pai": [29, 39, 51], "palco": [10, 18, 33], "palha": [7, 35, 41], "palhaco": [1, 9, 28], "palio": [16, 37, 42], "palito": [6, 15, 28], "palmeira": [3, 10, 29], "palmito": [17, 24, 48], "pancada": [40, 42, 60], "panela": [16, 17, 57], "pano": [6, 11, 44], "pao": [5, 10, 20], "papa": [17, 31, 50], "papel": [31, 36, 45], "paraiso": [22, 27, 53], "paralitico": [17, 43, 51], "parteira": [12, 13, 34], "parto": [8, 18, 54], "passaro": [2, 15, 24], "passeio": [14, 20, 26], "pastel": [16, 18, 37], "patinacao": [3, 30, 32], "pato": [1, 12, 60], "patrulha": [8, 42, 56], "pavao": [22, 29, 60], "pe": [13, 32, 37], "pedra": [23, 41, 48], "pedreiro": [19, 56, 59], "peito": [34, 49, 59], "peixe": [9, 25, 60], "pelada": [23, 48, 57], "pele": [15, 23, 58], "pena": [25, 31, 33], "pente": [14, 35, 36], "pepino": [19, 20, 34], "pera": [18, 23, 26], "percevejo": [16, 23, 29], "perfume": [6, 27, 37], "perna": [22, 38, 39], "perola": [16, 34, 38], "peru": [19, 21, 34], "peruca": [10, 35, 38], "pescaria": [25, 28, 36], "pescoco": [33, 38, 39], "pessego": [28, 35, 37], "piano": [20, 22, 37], "pimenta": [19, 21, 55], "pinhao": [4, 15, 33], "pinto": [11, 42, 50], "pintura": [11, 20, 58], "piramide": [12, 33, 46], "pisar": [23, 35, 54], "pitanga": [17, 32, 60], "planicie": [5, 7, 27], "poco": [14, 45, 46], "policial": [5, 7, 10], "pomar": [13, 25, 47], "pomba": [22, 30, 53], "ponte": [13, 15, 22], "porco": [21, 39, 49], "porta": [1, 14, 24], "porto": [4, 8, 25], "prado": [14, 38, 50], "praia": [11, 27], "prata": [5, 29, 36], "prato": [12, 29, 33], "precipicio": [11, 49, 55], "prego": [4, 18, 27], "presente": [10, 17, 21], "presunto": [21, 46, 52], "primo": [10, 12, 22], "principe": [21, 39, 47], "prisao": [2, 20, 37], "processo": [21, 30, 38], "procissao": [5, 35, 37], "pulga": [5, 15, 31], "punho": [14, 26, 28], "punicao": [21, 54, 55], "quadra": [45, 49, 52], "quadrado": [30, 35, 39], "quadro": [13, 35, 54], "quarto": [13, 16, 42], "queda": [3, 4, 32], "queijo": [15, 22, 38], "queixo": [19, 33, 53], "quermesse": [17, 24, 52], "quiabo": [12, 29, 43], "quintal": [5, 26, 32], "quisto": [4, 18, 38], "ra": [6, 8, 11], "rabanete": [12, 27, 36], "rainha": [7, 26, 33], "raizes": [2, 20, 36], "ramalhete": [3, 7, 29], "ramo": [11, 25, 36], "rancho": [6, 17, 60], "raposa": [30, 39, 43], "rapto": [19, 38, 40], "ratoeira": [22, 37, 55], "rato": [26, 31, 33], "recibo": [18, 27, 36], "rede": [37, 45, 60], "regata": [6, 28, 33], "regato": [20, 30, 39], "regimento": [20, 39, 46], "rei": [36, 37, 46], "relogio": [30, 47, 60], "remedio": [3, 13, 24], "remendo": [33, 50, 55], "repolho": [11, 25, 60], "repuxo": [5, 12, 19], "retrato": [14, 50, 60], "reuniao": [14, 31, 35], "revolta": [29, 33], "revolucao": [7, 15, 37], "revolver": [1, 3, 11], "rico": [14, 33, 46], "rio": [7, 35, 43], "riso": [9, 11, 31], "rival": [23, 46, 58], "rixa": [3, 12, 32], "rochedo": [1, 8, 56], "roda": [6, 22, 43], "roleta": [18, 21, 32], "roma": [7, 27, 45], "rosa": [7, 19, 35], "rosario": [5, 14, 39], "roseira": [7, 19, 32], "rosto": [24, 25, 60], "roubo": [19, 23, 28], "roupa": [2, 13, 37], "rua": [14, 21, 24], "rubi": [5, 6, 14], "ruga": [10, 30, 57], "ruinas": [4, 23, 56], "sabao": [6, 29, 38], "sabia": [8, 11, 25], "sabonete": [2, 35], "sacerdote": [19, 31, 40], "saco": [11, 22, 29], "saia": [16, 21, 23], "salva de tiros": [7, 12, 13], "salvamento": [3, 32, 33], "sangrar": [16, 18, 30], "sangue": [1, 5, 49], "santo": [7, 12, 58], "sapataria": [11, 26, 27], "sapateiro": [10, 12, 37], "sapato": [3, 10, 33], "sapo": [3, 10, 22], "sardinha": [11, 16, 38], "saudacao": [5, 13, 33], "saudade": [19, 23, 38], "saude": [7, 28, 49], "seda": [19, 22, 39], "sede": [9, 24, 35], "segredo": [7, 12, 46], "semente": [3, 9, 36], "sentinela": [19, 27, 56], "sepultura": [8, 16, 36], "serenata": [10, 11, 57], "serpente": [5, 16, 30], "sertao": [10, 28, 55], "sessao": [1, 30, 44], "seta": [13, 22, 37], "sexo": [14, 26, 31], "sino": [25, 29, 52], "sobrinho": [4, 19, 31], "socio": [29, 55, 56], "sogra": [16, 30, 43], "sogro": [1, 12, 58], "sol": [12, 19, 55], "soldado": [7, 29, 53], "solteiro": [25, 26, 45], "sonho": [10, 13, 28], "sorvete": [20, 31, 42], "suar": [33, 44, 59], "submarino": [12, 20, 33], "subterraneo": [6, 28, 37], "suicidio": [16, 18, 35], "surdez": [36, 45, 52], "suspiro": [16, 17, 20], "susto": [33, 37, 45], "tabeliao": [10, 30, 52], "tablado": [7, 22, 54], "tabuleiro": [12, 30, 37], "tabuleta": [5, 30, 47], "taca": [12, 17, 48], "talher": [4, 49], "tamanco": [28, 39, 60], "tambor": [19, 38, 45], "tampa": [19, 23, 39], "tangerina": [7, 8, 26], "tanque": [21, 26, 54], "tapa": [1, 5, 30], "tapete": [1, 34, 48], "tapume": [26, 39, 53], "tartaruga": [4, 31, 39], "tatu": [12, 17, 45], "taxa": [5, 6, 20], "teatro": [21, 33, 36], "teia de aranha": [6, 16, 26], "telegrama": [2, 17, 27], "telhado": [24, 29, 59], "tempestade": [24, 31, 41], "temporal": [1, 26, 39], "termometro": [8, 13, 18], "tesoura": [16, 24, 26], "testa": [13, 17, 46], "testamento": [6, 19, 50], "tigre": [18, 20, 26], "tina": [9, 37, 47], "tinta": [11, 33, 35], "tiro": [14, 25, 44], "torre": [17, 32, 53], "tosse": [11, 21, 58], "touro": [3, 25, 55], "trevas": [20, 54, 56], "trigo": [20, 24, 41], "troco": [17, 38, 59], "trono": [30, 44, 55], "tumor": [15, 27, 46], "tunica": [20, 25, 31], "ulcera": [15, 17, 47], "umbigo": [26, 40, 57], "unguento": [15, 18, 25], "uncao": [2, 12, 18], "unha": [15, 22, 25], "urina": [16, 20, 39], "urso": [11, 31, 49], "urubu": [28, 49, 54], "usura": [5, 58, 59], "uva": [3, 15, 22], "vaca": [36, 37, 38], "vacina": [17, 29, 47], "vagabundo": [2, 10, 39], "vagalume": [1, 8, 55], "vagao": [24, 37, 48], "vampiro": [13, 16, 49], "vaqueiro": [36, 37, 38], "vaso": [6, 15, 56], "vassoura": [1, 24, 57], "veado": [9, 17, 36], "veia": [15, 35, 53], "velhice": [15, 48, 54], "veludo": [31, 53, 57], "veneno": [2, 9, 57], "vento": [18, 33, 36], "ventre": [9, 40, 53], "verme": [5, 22, 48], "vestido": [9, 15, 38], "viaduto": [33, 34, 39], "viagem": [2, 3, 30], "vidro": [22, 42, 53], "vinagre": [28, 38, 59], "vinho": [2, 20, 25], "violao": [9, 15, 45], "violino": [19, 36, 59], "visita": [6, 34, 39], "visoes": [25, 26, 34], "viuvez": [2, 35, 45], "voar": [9, 34, 37], "vomito": [16, 21, 25], "vulcao": [30, 43, 54], "voz": [2, 6, 24], "xadrez": [30, 36, 47], "xarope": [4, 22, 35], "xicara": [4, 33, 40], "zebra": [13, 27, 32], "zero": [27, 48, 51], "zurro": [15, 21, 43]};
+
+const CHAVES_ORDENADAS = Object.keys(DREAM_DICT).sort((a,b) => b.length - a.length);
+
+function normalizar(t) {
+  return t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+// Retorna, além da lista de números batidos, um "peso" por dezena — quantas
+// vezes ela apareceu somando todas as palavras do sonho reconhecidas. Uma
+// dezena citada por 2 ou 3 palavras diferentes passa a ter mais chance de
+// ser escolhida do que uma citada só uma vez.
+function numerosDoSonho(texto) {
+  const t = ' ' + normalizar(texto).replace(/[^a-z0-9\s]/g, ' ') + ' ';
+  const pesos = {};
+  let palavrasEncontradas = [];
+  const usado = new Set();
+  for (const chave of CHAVES_ORDENADAS) {
+    const alvo = ' ' + chave + ' ';
+    if (t.includes(alvo) && !usado.has(chave)) {
+      for (const n of DREAM_DICT[chave]) {
+        pesos[n] = (pesos[n] || 0) + 1;
+      }
+      palavrasEncontradas.push(chave);
+      usado.add(chave);
+    }
+  }
+  return { pesos, palavras: palavrasEncontradas };
+}
+
+// Transforma um mapa {numero: peso} num "pool" com repetições — quanto maior
+// o peso, mais vezes o número aparece, e mais chance ele tem de ser sorteado
+// no preenchimento aleatório.
+function poolDeMapa(mapaPesos) {
+  const pool = [];
+  for (const [n, peso] of Object.entries(mapaPesos)) {
+    for (let k = 0; k < peso; k++) pool.push(parseInt(n));
+  }
+  return pool;
+}
+
+// Igual acima, mas para uma lista já ranqueada (ex: dezenas mais sorteadas em
+// ordem decrescente) — dá mais peso pras primeiras posições do ranking.
+function poolDeRanking(lista) {
+  const pool = [];
+  lista.forEach((n, i) => {
+    const peso = lista.length - i;
+    for (let k = 0; k < peso; k++) pool.push(n);
+  });
+  return pool;
+}
+
+function completarAte6(base, pool) {
+  const set = new Set(base.filter(n => n >= 1 && n <= 60));
+  const usarPool = pool.length ? pool : Array.from({length:60}, (_,i)=>i+1);
+  let tentativas = 0;
+  while (set.size < 6 && tentativas < 1000) {
+    const candidato = usarPool[Math.floor(Math.random() * usarPool.length)];
+    set.add(candidato);
+    tentativas++;
+  }
+  while (set.size < 6) {
+    set.add(Math.floor(Math.random() * 60) + 1);
+  }
+  return Array.from(set).slice(0,6).sort((a,b) => a - b);
+}
+
+// Histórico de jogos gerados nesta sessão (só em memória — some ao fechar
+// ou recarregar a página, nada é salvo em disco).
+let HISTORICO_JOGOS = [];
+
+function gerar() {
+  const texto = document.getElementById('dream').value.trim();
+  const modo = document.getElementById('style').value;
+  const qtd = parseInt(document.getElementById('qtdJogos').value, 10);
+
+  const { pesos: pesosSonho, palavras } = numerosDoSonho(texto);
+  const numerosSonhoUnicos = Object.keys(pesosSonho).map(Number);
+  const poolSonho = poolDeMapa(pesosSonho);
+  const poolQuentes = poolDeRanking(quentes); // peso real por posição no ranking histórico
+  const poolFrias = poolDeRanking(frias);
+
+  let base = [];
+  let pool = [];
+  let motivo = '';
+
+  if (modo === 'dream') {
+    pool = poolSonho;
+    motivo = numerosSonhoUnicos.length
+      ? 'Números tirados do Livro dos Sonhos, com mais chance para dezenas ligadas a mais de uma palavra do seu sonho.'
+      : 'Não reconheci palavras do Livro dos Sonhos no seu texto, então completei com sorteio aleatório dentro da faixa 1-60.';
+  } else if (modo === 'hot') {
+    pool = poolQuentes;
+    motivo = `Sorteio ponderado pela frequência real de cada dezena nos ${MEGA_STATS.total_concursos} concursos já realizados da Mega-Sena (dados oficiais até o concurso ${MEGA_STATS.ultimo_concurso}) — quanto mais a dezena já saiu, mais chance ela tem aqui.`;
+  } else if (modo === 'cold') {
+    pool = poolFrias;
+    motivo = `Sorteio ponderado pelo atraso de cada dezena, contando a partir do concurso ${MEGA_STATS.ultimo_concurso} — quanto mais tempo sem sair, mais chance ela tem aqui.`;
+  } else {
+    base = numerosSonhoUnicos
+      .sort((a,b) => pesosSonho[b] - pesosSonho[a])
+      .slice(0, 2);
+    pool = numerosSonhoUnicos.length ? poolSonho.concat(poolQuentes) : poolQuentes.concat(poolFrias);
+    motivo = numerosSonhoUnicos.length
+      ? `Combinei o significado do seu sonho (Livro dos Sonhos) com o histórico real dos ${MEGA_STATS.total_concursos} concursos da Mega-Sena.`
+      : 'Não encontrei palavras do Livro dos Sonhos no seu texto, então usei o histórico de números quentes e atrasados.';
+  }
+
+  const jogos = [];
+  for (let i = 0; i < qtd; i++) {
+    jogos.push(completarAte6(base, pool));
+  }
+
+  const resultEl = document.getElementById('jogosResultado');
+  resultEl.innerHTML = jogos.map((numeros, idx) => `
+    <div class="jogo-bloco">
+      ${jogos.length > 1 ? `<div class="jogo-label">Jogo ${idx+1}</div>` : ''}
+      <div class="balls">${numeros.map(n => `<div class="ball">${String(n).padStart(2,'0')}</div>`).join('')}</div>
+      <div class="jogo-acoes">
+        <button class="copy-btn" onclick="copiarJogo(this, [${numeros}])">Copiar números</button>
+        <button class="copy-btn" onclick="baixarImagemJogo([${numeros}], ${idx+1})" style="margin-left:8px;">📷 Baixar imagem</button>
+      </div>
+    </div>
+  `).join('');
+
+  const whyEl = document.getElementById('why');
+  whyEl.style.display = 'block';
+  whyEl.innerHTML = `<b>Como cheguei nesses números:</b> ${motivo}` +
+    (palavras.length ? `<div class="tags">${palavras.map(p=>`<span class="tag">${p}</span>`).join('')}</div>` : '');
+
+  jogos.forEach(numeros => adicionarHistorico(numeros, modo));
+}
+
+function copiarJogo(btn, numeros) {
+  const texto = numeros.map(n => String(n).padStart(2,'0')).join(' - ');
+  navigator.clipboard.writeText(texto).then(() => {
+    const original = btn.textContent;
+    btn.textContent = 'Copiado ✓';
+    btn.classList.add('copiado');
+    setTimeout(() => { btn.textContent = original; btn.classList.remove('copiado'); }, 1500);
+  }).catch(() => {});
+}
+
+function baixarCanvas(canvas, nomeArquivo) {
+  canvas.toBlob((blob) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = nomeArquivo;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }, 'image/png');
+}
+
+// Desenha o jogo (6 bolinhas douradas) num canvas e baixa como PNG, pronto
+// pra compartilhar em redes sociais ou grupos.
+function baixarImagemJogo(numeros, indiceJogo) {
+  const canvas = document.createElement('canvas');
+  const W = 640, H = 360;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  const fundo = ctx.createRadialGradient(W/2, 0, 50, W/2, H/2, 500);
+  fundo.addColorStop(0, '#232a63');
+  fundo.addColorStop(1, '#070a24');
+  ctx.fillStyle = fundo;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.textAlign = 'center';
+  const dourado = ctx.createLinearGradient(0, 40, 0, 90);
+  dourado.addColorStop(0, '#FFE9A8');
+  dourado.addColorStop(1, '#C99A3E');
+  ctx.fillStyle = dourado;
+  ctx.font = "700 34px 'Baloo 2', sans-serif";
+  ctx.fillText('✨ Mega dos Sonhos ✨', W/2, 60);
+
+  ctx.fillStyle = '#B7B3D8';
+  ctx.font = "16px 'Inter', sans-serif";
+  ctx.fillText(`Jogo ${indiceJogo} · gerado em ${new Date().toLocaleDateString('pt-BR')}`, W/2, 92);
+
+  const raio = 34, gap = 20;
+  const larguraTotal = numeros.length * (raio*2) + (numeros.length-1) * gap;
+  let x = (W - larguraTotal) / 2 + raio;
+  const y = 190;
+  numeros.forEach(n => {
+    const bola = ctx.createRadialGradient(x-10, y-12, 5, x, y, raio);
+    bola.addColorStop(0, '#FFE9A8');
+    bola.addColorStop(0.55, '#F2C879');
+    bola.addColorStop(1, '#C99A3E');
+    ctx.beginPath();
+    ctx.arc(x, y, raio, 0, Math.PI*2);
+    ctx.fillStyle = bola;
+    ctx.fill();
+    ctx.fillStyle = '#171B45';
+    ctx.font = "700 22px 'Baloo 2', sans-serif";
+    ctx.textBaseline = 'middle';
+    ctx.fillText(String(n).padStart(2,'0'), x, y+2);
+    x += raio*2 + gap;
+  });
+  ctx.textBaseline = 'alphabetic';
+
+  ctx.fillStyle = '#6E6A9C';
+  ctx.font = "13px 'Inter', sans-serif";
+  ctx.fillText('Ferramenta de entretenimento — não garante resultados em jogos.', W/2, 320);
+
+  baixarCanvas(canvas, `mega-dos-sonhos-jogo${indiceJogo}.png`);
+}
+
+// Mesma ideia, mas pro cartão de perfil de numerologia.
+function baixarImagemPerfil(dados) {
+  const canvas = document.createElement('canvas');
+  const W = 640, H = 500;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  const fundo = ctx.createRadialGradient(W/2, 0, 50, W/2, H/2, 600);
+  fundo.addColorStop(0, '#232a63');
+  fundo.addColorStop(1, '#070a24');
+  ctx.fillStyle = fundo;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.textAlign = 'center';
+  const dourado = ctx.createLinearGradient(0, 30, 0, 75);
+  dourado.addColorStop(0, '#FFE9A8');
+  dourado.addColorStop(1, '#C99A3E');
+
+  ctx.font = "48px 'Inter', sans-serif";
+  ctx.fillStyle = '#F4F1E8';
+  ctx.fillText(dados.emoji, W/2, 90);
+
+  ctx.fillStyle = dourado;
+  ctx.font = "700 30px 'Baloo 2', sans-serif";
+  ctx.fillText(`${dados.nome} · ${dados.signo}`, W/2, 130);
+
+  ctx.fillStyle = '#B7B3D8';
+  ctx.font = "14px 'Inter', sans-serif";
+  ctx.fillText(`${dados.elemento} · Regente: ${dados.regente}`, W/2, 155);
+
+  const linhas = [
+    ['Caminho de Vida', dados.caminhoVida],
+    ['Expressão', dados.expressao],
+    ['Alma', dados.alma],
+    ['Personalidade', dados.personalidade],
+  ];
+  const startX = W/2 - ((linhas.length-1) * 130) / 2;
+  linhas.forEach((item, i) => {
+    const cx = startX + i * 130;
+    ctx.fillStyle = dourado;
+    ctx.font = "700 34px 'Baloo 2', sans-serif";
+    ctx.fillText(String(item[1]), cx, 250);
+    ctx.fillStyle = '#8B87BE';
+    ctx.font = "12px 'Inter', sans-serif";
+    ctx.fillText(item[0], cx, 272);
+  });
+
+  ctx.fillStyle = '#B7B3D8';
+  ctx.font = "14px 'Inter', sans-serif";
+  ctx.fillText('🍀 Número principal da sorte', W/2, 330);
+  ctx.fillStyle = dourado;
+  ctx.font = "700 46px 'Baloo 2', sans-serif";
+  ctx.fillText(String(dados.sortePrincipal), W/2, 385);
+
+  ctx.fillStyle = '#DCD9F5';
+  ctx.font = "16px 'Inter', sans-serif";
+  ctx.fillText('Favoráveis: ' + dados.sorteFavoraveis.join(' · '), W/2, 415);
+
+  ctx.fillStyle = '#6E6A9C';
+  ctx.font = "13px 'Inter', sans-serif";
+  ctx.fillText('Numerologia e astrologia são práticas simbólicas, de entretenimento.', W/2, 465);
+
+  baixarCanvas(canvas, `perfil-numerologia-${dados.nome.replace(/\s+/g,'-').toLowerCase()}.png`);
+}
+
+function adicionarHistorico(numeros, modo) {
+  const rotulos = { mix: 'sonho + histórico', dream: 'sonho', hot: 'mais sorteadas', cold: 'mais atrasadas' };
+  HISTORICO_JOGOS.unshift({ numeros, rotulo: rotulos[modo] || modo, hora: new Date() });
+  HISTORICO_JOGOS = HISTORICO_JOGOS.slice(0, 20); // guarda só os 20 mais recentes
+  renderHistorico();
+}
+
+function renderHistorico() {
+  const box = document.getElementById('historicoBox');
+  if (!HISTORICO_JOGOS.length) {
+    box.innerHTML = '<div class="historico-vazio">Os jogos que você gerar aparecem aqui enquanto a página estiver aberta.</div>';
+    return;
+  }
+  const horaFmt = (d) => d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+  box.innerHTML = HISTORICO_JOGOS.map(item => `
+    <div class="historico-item">
+      <span>${horaFmt(item.hora)}</span>
+      <span class="historico-numeros">${item.numeros.map(n=>String(n).padStart(2,'0')).join(' · ')}</span>
+      <span>(${item.rotulo})</span>
+    </div>
+  `).join('') + '<button class="historico-limpar" onclick="limparHistorico()">Limpar histórico</button>';
+}
+
+function limparHistorico() {
+  HISTORICO_JOGOS = [];
+  renderHistorico();
+}
+
+// ---- Gráfico simples (SVG) de frequência histórica das 60 dezenas ----
+function renderFreqChart() {
+  const el = document.getElementById('freqChart');
+  const valores = Array.from({length:60}, (_,i) => MEGA_STATS.frequencia[String(i+1)] || 0);
+  const max = Math.max(...valores);
+  const min = Math.min(...valores);
+  const largura = 600, altura = 120, margem = 2;
+  const larguraBarra = (largura / 60) - margem;
+
+  const barras = valores.map((v, i) => {
+    const alturaBarra = 10 + ((v - min) / (max - min)) * (altura - 14);
+    const x = i * (largura / 60);
+    const y = altura - alturaBarra;
+    const intensidade = (v - min) / (max - min);
+    const cor = intensidade > 0.75 ? 'var(--gold)' : intensidade > 0.4 ? 'var(--text-mute)' : '#3A3E75';
+    return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${larguraBarra.toFixed(1)}" height="${alturaBarra.toFixed(1)}" fill="${cor}"><title>Dezena ${i+1}: ${v} vezes</title></rect>`;
+  }).join('');
+
+  el.innerHTML = `<svg viewBox="0 0 ${largura} ${altura}" style="width:100%; height:auto; display:block;">${barras}</svg>`;
+}
+
+/* =========================================================================
+   MÓDULO: NUMEROLOGIA & SIGNO SOLAR
+   Tudo roda 100% no navegador — nenhum dado (nome/data/hora/cidade) sai
+   deste dispositivo. Nada é enviado a serviços externos nem fica salvo
+   depois que a página é fechada ou recarregada.
+   ========================================================================= */
+
+// ---- Navegação por abas ----
+function mudarAba(aba) {
+  const mega = document.getElementById('view-mega');
+  const numero = document.getElementById('view-numero');
+  const btnMega = document.getElementById('tabBtnMega');
+  const btnNumero = document.getElementById('tabBtnNumero');
+  if (aba === 'mega') {
+    mega.style.display = '';
+    numero.style.display = 'none';
+    btnMega.classList.add('active');
+    btnNumero.classList.remove('active');
+  } else {
+    mega.style.display = 'none';
+    numero.style.display = '';
+    btnNumero.classList.add('active');
+    btnMega.classList.remove('active');
+  }
+}
+
+// ---- Dados dos 12 signos solares ----
+const SIGNOS = [
+  { nome: 'Áries', emoji: '♈', inicio: [3,21], fim: [4,19], elemento: 'Fogo', regente: 'Marte', numeros: [1,9],
+    caracteristicas: 'Iniciativa, coragem e impulsividade. Gosta de liderar e começar coisas novas.' },
+  { nome: 'Touro', emoji: '♉', inicio: [4,20], fim: [5,20], elemento: 'Terra', regente: 'Vênus', numeros: [2,6],
+    caracteristicas: 'Estabilidade, paciência e apreço pelo conforto e pelos prazeres simples da vida.' },
+  { nome: 'Gêmeos', emoji: '♊', inicio: [5,21], fim: [6,20], elemento: 'Ar', regente: 'Mercúrio', numeros: [3,5],
+    caracteristicas: 'Comunicação, curiosidade e versatilidade. Gosta de aprender e trocar ideias.' },
+  { nome: 'Câncer', emoji: '♋', inicio: [6,21], fim: [7,22], elemento: 'Água', regente: 'Lua', numeros: [2,7],
+    caracteristicas: 'Sensibilidade, cuidado com a família e memória afetiva forte.' },
+  { nome: 'Leão', emoji: '♌', inicio: [7,23], fim: [8,22], elemento: 'Fogo', regente: 'Sol', numeros: [1,4],
+    caracteristicas: 'Generosidade, criatividade e vontade de brilhar e ser reconhecido.' },
+  { nome: 'Virgem', emoji: '♍', inicio: [8,23], fim: [9,22], elemento: 'Terra', regente: 'Mercúrio', numeros: [5,6],
+    caracteristicas: 'Atenção aos detalhes, organização e espírito prático.' },
+  { nome: 'Libra', emoji: '♎', inicio: [9,23], fim: [10,22], elemento: 'Ar', regente: 'Vênus', numeros: [6,7],
+    caracteristicas: 'Busca por equilíbrio, senso estético e habilidade para mediar relações.' },
+  { nome: 'Escorpião', emoji: '♏', inicio: [10,23], fim: [11,21], elemento: 'Água', regente: 'Plutão/Marte', numeros: [8,9],
+    caracteristicas: 'Intensidade, profundidade emocional e capacidade de transformação.' },
+  { nome: 'Sagitário', emoji: '♐', inicio: [11,22], fim: [12,21], elemento: 'Fogo', regente: 'Júpiter', numeros: [3,9],
+    caracteristicas: 'Otimismo, amor por liberdade e vontade de explorar o mundo e as ideias.' },
+  { nome: 'Capricórnio', emoji: '♑', inicio: [12,22], fim: [1,19], elemento: 'Terra', regente: 'Saturno', numeros: [4,8],
+    caracteristicas: 'Disciplina, ambição e senso de responsabilidade a longo prazo.' },
+  { nome: 'Aquário', emoji: '♒', inicio: [1,20], fim: [2,18], elemento: 'Ar', regente: 'Urano/Saturno', numeros: [4,7],
+    caracteristicas: 'Originalidade, senso coletivo e visão à frente do seu tempo.' },
+  { nome: 'Peixes', emoji: '♓', inicio: [2,19], fim: [3,20], elemento: 'Água', regente: 'Netuno/Júpiter', numeros: [7,9],
+    caracteristicas: 'Sensibilidade, imaginação e forte conexão emocional e intuitiva.' },
+];
+
+function calcularSigno(mes, dia) {
+  for (const s of SIGNOS) {
+    const [im, id] = s.inicio;
+    const [fm, fd] = s.fim;
+    if (im > fm) { // signo que cruza o fim do ano (Capricórnio)
+      if ((mes === im && dia >= id) || (mes === fm && dia <= fd)) return s;
+    } else {
+      if ((mes === im && dia >= id) || (mes === fm && dia <= fd) || (mes > im && mes < fm)) return s;
+    }
+  }
+  return SIGNOS[0];
+}
+
+// ---- Tabela pitagórica (para Expressão, Alma e Personalidade) ----
+const TABELA_PITAGORICA = {
+  a:1, j:1, s:1,
+  b:2, k:2, t:2,
+  c:3, l:3, u:3,
+  d:4, m:4, v:4,
+  e:5, n:5, w:5,
+  f:6, o:6, x:6,
+  g:7, p:7, y:7,
+  h:8, q:8, z:8,
+  i:9, r:9,
+};
+const VOGAIS = ['a','e','i','o','u'];
+
+function limparNome(nome) {
+  return normalizar(nome).replace(/[^a-z\s]/g, '').trim();
+}
+
+// Reduz um número somando seus dígitos repetidamente, preservando os
+// números mestres 11, 22 e 33 (não reduz esses casos a um dígito só).
+function reduzirNumero(n) {
+  while (n > 9 && n !== 11 && n !== 22 && n !== 33) {
+    n = String(n).split('').reduce((soma, d) => soma + parseInt(d, 10), 0);
+  }
+  return n;
+}
+
+// Caminho de Vida: soma todos os dígitos da data de nascimento (dd+mm+aaaa) e reduz.
+function calcularCaminhoVida(dia, mes, ano) {
+  const digitos = `${String(dia).padStart(2,'0')}${String(mes).padStart(2,'0')}${ano}`;
+  const soma = digitos.split('').reduce((s, d) => s + parseInt(d, 10), 0);
+  return reduzirNumero(soma);
+}
+
+// Número de Expressão: soma o valor pitagórico de TODAS as letras do nome.
+function calcularExpressao(nomeLimpo) {
+  let soma = 0;
+  for (const ch of nomeLimpo.replace(/\s/g, '')) {
+    soma += TABELA_PITAGORICA[ch] || 0;
+  }
+  return reduzirNumero(soma);
+}
+
+// Número da Alma: soma o valor pitagórico apenas das VOGAIS do nome.
+function calcularAlma(nomeLimpo) {
+  let soma = 0;
+  for (const ch of nomeLimpo.replace(/\s/g, '')) {
+    if (VOGAIS.includes(ch)) soma += TABELA_PITAGORICA[ch] || 0;
+  }
+  return reduzirNumero(soma);
+}
+
+// Número da Personalidade: soma o valor pitagórico apenas das CONSOANTES do nome.
+function calcularPersonalidade(nomeLimpo) {
+  let soma = 0;
+  for (const ch of nomeLimpo.replace(/\s/g, '')) {
+    if (/[a-z]/.test(ch) && !VOGAIS.includes(ch)) soma += TABELA_PITAGORICA[ch] || 0;
+  }
+  return reduzirNumero(soma);
+}
+
+// Número de Sorte: combinação determinística (sem aleatoriedade) dos quatro
+// números pessoais + os números do signo. O mesmo nome + mesma data sempre
+// geram o mesmo resultado.
+//   principal = reduzirNumero(caminhoVida + expressao + alma + personalidade + soma dos números do signo)
+//   favoráveis = 5 números derivados por deslocamentos fixos sobre os números-base,
+//                mantidos dentro da faixa 1-60 (mesma faixa da Mega-Sena, útil pra quem
+//                quiser usar esse número também como palpite de jogo)
+function calcularNumeroSorte(caminhoVida, expressao, alma, personalidade, signo) {
+  const somaSigno = signo.numeros.reduce((a,b) => a+b, 0);
+  const principal = reduzirNumero(caminhoVida + expressao + alma + personalidade + somaSigno);
+
+  const paraFaixa = (n) => ((n - 1) % 60) + 1;
+  const favoraveis = new Set([
+    paraFaixa(principal),
+    paraFaixa(caminhoVida + expressao),
+    paraFaixa(alma + personalidade),
+    paraFaixa(signo.numeros[0] + caminhoVida),
+    paraFaixa(signo.numeros[1] + expressao + 7),
+  ]);
+  // completa até 5 valores únicos, se houver colisão
+  let tentativa = 1;
+  while (favoraveis.size < 5) {
+    favoraveis.add(paraFaixa(principal * tentativa + tentativa));
+    tentativa++;
+  }
+  return { principal, favoraveis: Array.from(favoraveis).slice(0,5).sort((a,b)=>a-b) };
+}
+
+// Número do Dia: determinístico, baseado na data atual + Caminho de Vida + Número de Sorte.
+// Muda todo dia, mas é sempre igual pra quem consultar no mesmo dia com o mesmo perfil.
+function calcularNumeroDia(caminhoVida, numeroSortePrincipal) {
+  const hoje = new Date();
+  const digitosHoje = `${hoje.getDate()}${hoje.getMonth()+1}${hoje.getFullYear()}`;
+  const somaHoje = digitosHoje.split('').reduce((s,d) => s + parseInt(d,10), 0);
+  return reduzirNumero(somaHoje + caminhoVida + numeroSortePrincipal);
+}
+
+// Ano Pessoal: soma dia + mês de nascimento com o ANO ATUAL (não o ano de
+// nascimento) e reduz. Indica o "tema" numerológico do ano corrente.
+function calcularAnoPessoal(dia, mes) {
+  const anoAtual = new Date().getFullYear();
+  const digitos = `${String(dia).padStart(2,'0')}${String(mes).padStart(2,'0')}${anoAtual}`;
+  const soma = digitos.split('').reduce((s,d) => s + parseInt(d,10), 0);
+  return reduzirNumero(soma);
+}
+
+// Mês Pessoal: soma o Ano Pessoal com o mês atual e reduz. Indica o "tema"
+// numerológico do mês corrente, dentro do ano pessoal já calculado.
+function calcularMesPessoal(anoPessoal) {
+  const mesAtual = new Date().getMonth() + 1;
+  return reduzirNumero(anoPessoal + mesAtual);
+}
+
+// ---- Interpretações dos números (1-9, 11, 22, 33) ----
+const INTERPRETACOES = {
+  1: { titulo: 'O Pioneiro', significado: 'Independência, iniciativa e capacidade de liderar e começar coisas novas.',
+       fortes: ['Determinação', 'Originalidade', 'Coragem para começar'], desafios: ['Impaciência', 'Teimosia', 'Dificuldade em pedir ajuda'],
+       sorte: 'Favorece decisões rápidas e o início de novos projetos.' },
+  2: { titulo: 'O Conciliador', significado: 'Sensibilidade, cooperação e talento para criar harmonia entre as pessoas.',
+       fortes: ['Empatia', 'Diplomacia', 'Paciência'], desafios: ['Insegurança', 'Dependência emocional', 'Evitar conflitos necessários'],
+       sorte: 'Favorece parcerias, acordos e decisões em conjunto.' },
+  3: { titulo: 'O Comunicador', significado: 'Criatividade, expressão e alegria de viver, geralmente ligado às artes e à palavra.',
+       fortes: ['Criatividade', 'Otimismo', 'Facilidade de comunicação'], desafios: ['Dispersão', 'Superficialidade', 'Dificuldade de foco'],
+       sorte: 'Favorece momentos sociais, criativos e de exposição pública.' },
+  4: { titulo: 'O Construtor', significado: 'Disciplina, organização e capacidade de construir bases sólidas e duradouras.',
+       fortes: ['Responsabilidade', 'Método', 'Persistência'], desafios: ['Rigidez', 'Resistência a mudanças', 'Excesso de cautela'],
+       sorte: 'Favorece planejamento, trabalho e decisões de longo prazo.' },
+  5: { titulo: 'O Aventureiro', significado: 'Liberdade, mudança e vontade de experimentar coisas novas.',
+       fortes: ['Adaptabilidade', 'Curiosidade', 'Energia'], desafios: ['Inconstância', 'Impulsividade', 'Dificuldade com rotina'],
+       sorte: 'Favorece viagens, mudanças e apostas em algo novo.' },
+  6: { titulo: 'O Cuidador', significado: 'Responsabilidade afetiva, harmonia familiar e senso de comunidade.',
+       fortes: ['Generosidade', 'Senso de justiça', 'Lealdade'], desafios: ['Excesso de sacrifício próprio', 'Perfeccionismo', 'Preocupação excessiva com os outros'],
+       sorte: 'Favorece decisões ligadas à família, casa e relações próximas.' },
+  7: { titulo: 'O Investigador', significado: 'Associado à introspecção, conhecimento, análise e espiritualidade.',
+       fortes: ['Intuição', 'Análise', 'Observação', 'Busca por conhecimento'], desafios: ['Isolamento', 'Excesso de pensamento', 'Dificuldade em confiar'],
+       sorte: 'Favorece reflexão, estudo e decisões tomadas com calma.' },
+  8: { titulo: 'O Realizador', significado: 'Ambição, senso prático e talento para lidar com poder, negócios e recursos materiais.',
+       fortes: ['Determinação', 'Visão estratégica', 'Capacidade de realização'], desafios: ['Materialismo excessivo', 'Autoritarismo', 'Estresse por resultados'],
+       sorte: 'Favorece negócios, negociações e metas concretas.' },
+  9: { titulo: 'O Humanitário', significado: 'Generosidade, visão ampla de mundo e desejo de contribuir para algo maior.',
+       fortes: ['Compaixão', 'Sabedoria', 'Desapego'], desafios: ['Idealismo excessivo', 'Dificuldade em dizer não', 'Dispersão de energia'],
+       sorte: 'Favorece encerramentos de ciclos e ações voltadas para os outros.' },
+  11: { titulo: 'O Visionário (número mestre)', significado: 'Intuição elevada, inspiração e potencial para iluminar e inspirar outras pessoas.',
+       fortes: ['Intuição forte', 'Sensibilidade', 'Inspiração'], desafios: ['Ansiedade', 'Autocobrança', 'Sensibilidade excessiva a estímulos'],
+       sorte: 'Favorece insights, ideias inspiradas e momentos de clareza.' },
+  22: { titulo: 'O Construtor Mestre (número mestre)', significado: 'Capacidade de transformar grandes ideias em realizações concretas e duradouras.',
+       fortes: ['Visão prática', 'Ambição elevada', 'Capacidade de organização em grande escala'], desafios: ['Pressão autoimposta', 'Medo de não corresponder ao próprio potencial'],
+       sorte: 'Favorece grandes decisões e projetos de longo alcance.' },
+  33: { titulo: 'O Mestre Iluminado (número mestre)', significado: 'Compaixão elevada, vocação para cuidar, ensinar e servir ao próximo.',
+       fortes: ['Generosidade extrema', 'Capacidade de curar e acolher', 'Sabedoria emocional'], desafios: ['Autossacrifício', 'Dificuldade em cuidar de si mesmo'],
+       sorte: 'Favorece atos de cuidado, ensino e serviço ao próximo.' },
+};
+
+function renderInterpretacao(numero, rotulo) {
+  const i = INTERPRETACOES[numero];
+  if (!i) return '';
+  return `<div class="interp-item">
+    <div class="interp-head"><span class="interp-num">${numero}</span><span class="interp-titulo">${i.titulo}</span></div>
+    <div class="interp-tag">${rotulo}</div>
+    <p>${i.significado}</p>
+    <p class="pts"><b>Pontos fortes:</b> ${i.fortes.join(', ')}</p>
+    <p class="pts"><b>Desafios:</b> ${i.desafios.join(', ')}</p>
+    <p class="pts"><b>Na sorte:</b> ${i.sorte}</p>
+  </div>`;
+}
+
+function validarEntrada(nome, dataStr) {
+  if (!nome || limparNome(nome).length === 0) {
+    return 'Digite seu nome completo.';
+  }
+  if (!dataStr) {
+    return 'Digite sua data de nascimento.';
+  }
+  const [ano, mes, dia] = dataStr.split('-').map(Number);
+  if (!ano || !mes || !dia) return 'Data de nascimento inválida.';
+  const data = new Date(ano, mes - 1, dia);
+  if (data.getFullYear() !== ano || data.getMonth() !== mes - 1 || data.getDate() !== dia) {
+    return 'Essa data de nascimento não existe. Confira o dia e o mês.';
+  }
+  const hoje = new Date();
+  hoje.setHours(0,0,0,0);
+  if (data > hoje) {
+    return 'A data de nascimento não pode ser no futuro.';
+  }
+  if (ano < 1900) {
+    return 'Digite um ano de nascimento válido (a partir de 1900).';
+  }
+  return null;
+}
+
+function calcularPerfil() {
+  const nome = document.getElementById('nomeInput').value;
+  const dataStr = document.getElementById('dataInput').value;
+  const cidade = document.getElementById('cidadeInput').value.trim();
+
+  const erro = validarEntrada(nome, dataStr);
+  const erroEl = document.getElementById('numeroErro');
+  if (erro) {
+    erroEl.textContent = erro;
+    erroEl.style.display = 'block';
+    document.getElementById('numeroResultado').style.display = 'none';
+    return;
+  }
+  erroEl.style.display = 'none';
+
+  const [ano, mes, dia] = dataStr.split('-').map(Number);
+  const nomeLimpo = limparNome(nome);
+  const primeiroNome = nome.trim().split(/\s+/)[0];
+
+  const signo = calcularSigno(mes, dia);
+  const caminhoVida = calcularCaminhoVida(dia, mes, ano);
+  const expressao = calcularExpressao(nomeLimpo);
+  const alma = calcularAlma(nomeLimpo);
+  const personalidade = calcularPersonalidade(nomeLimpo);
+  const { principal: sortePrincipal, favoraveis: sorteFavoraveis } = calcularNumeroSorte(caminhoVida, expressao, alma, personalidade, signo);
+  const numeroDia = calcularNumeroDia(caminhoVida, sortePrincipal);
+  const anoPessoal = calcularAnoPessoal(dia, mes);
+  const mesPessoal = calcularMesPessoal(anoPessoal);
+
+  const combinacao = Array.from(new Set([...signo.numeros, caminhoVida, expressao].map(n => ((n-1)%60)+1))).sort((a,b)=>a-b);
+
+  const html = `
+    <div class="card profile-card">
+      <div class="stars-deco">✦ &nbsp; ✧ &nbsp; ✦</div>
+      <div class="signo-emoji">${signo.emoji}</div>
+      <div class="nome-pessoa">${primeiroNome}</div>
+      <div class="signo-nome">${signo.nome}</div>
+      <div class="signo-sub">${signo.elemento} · Regente: ${signo.regente} · Números do signo: ${signo.numeros.join(' · ')}</div>
+      <div class="why" style="border-top:none; padding-top:0; text-align:left;">${signo.caracteristicas}</div>
+
+      <div class="num-grid">
+        <div class="num-tile"><div class="num-big">${caminhoVida}</div><div class="num-label">Caminho de Vida</div></div>
+        <div class="num-tile"><div class="num-big">${expressao}</div><div class="num-label">Número de Expressão</div></div>
+        <div class="num-tile"><div class="num-big">${alma}</div><div class="num-label">Número da Alma</div></div>
+        <div class="num-tile"><div class="num-big">${personalidade}</div><div class="num-label">Número da Personalidade</div></div>
+        <div class="num-tile"><div class="num-big">${anoPessoal}</div><div class="num-label">Ano Pessoal (${new Date().getFullYear()})</div></div>
+        <div class="num-tile"><div class="num-big">${mesPessoal}</div><div class="num-label">Mês Pessoal</div></div>
+      </div>
+
+      <div class="sorte-box">
+        <div class="sorte-label">🍀 Número principal da sorte</div>
+        <div class="sorte-principal">${sortePrincipal}</div>
+        <div class="sorte-fav">
+          ${sorteFavoraveis.map(n => `<div class="mini-ball">${n}</div>`).join('')}
+        </div>
+        <div class="sorte-label" style="margin-top:6px;">⭐ Números favoráveis</div>
+      </div>
+
+      <div class="combinacao-box">
+        <div class="sorte-label">🔮 Combinação de sorte (signo + perfil)</div>
+        <div class="combi-nums">${combinacao.join(' · ')}</div>
+      </div>
+
+      <div class="dia-box">
+        <div class="sorte-label">✨ Número do Dia</div>
+        <div class="dia-num">${numeroDia}</div>
+        <p>Hoje é um dia simbolicamente favorável para reflexão, planejamento e decisões cuidadosas.</p>
+      </div>
+      ${cidade ? `<div class="why" style="text-align:left;">Nascimento em: ${cidade}</div>` : ''}
+
+      <div class="jogo-acoes" style="margin-top:14px;">
+        <button class="copy-btn" id="btnCopiarPerfil">Copiar resumo do perfil</button>
+        <button class="copy-btn" id="btnImagemPerfil" style="margin-left:8px;">📷 Baixar imagem</button>
+      </div>
+    </div>
+
+    <div class="card interp-list">
+      ${renderInterpretacao(caminhoVida, 'Caminho de Vida')}
+      ${renderInterpretacao(expressao, 'Número de Expressão')}
+      ${renderInterpretacao(alma, 'Número da Alma')}
+      ${renderInterpretacao(personalidade, 'Número da Personalidade')}
+      <button class="refazer-btn" onclick="refazerCalculo()">🔄 Refazer cálculo</button>
+    </div>
+
+    <p class="disclaimer">
+      🔮 A numerologia e a astrologia são práticas simbólicas e de entretenimento. Os números e interpretações apresentados não representam previsões científicas nem garantem resultados em jogos ou decisões financeiras.
+    </p>
+  `;
+
+  const resultadoEl = document.getElementById('numeroResultado');
+  resultadoEl.innerHTML = html;
+  resultadoEl.style.display = 'block';
+
+  const resumoTexto = `✨ Perfil de ${primeiroNome}\n${signo.emoji} ${signo.nome} (${signo.elemento}, regente ${signo.regente})\n`
+    + `Caminho de Vida: ${caminhoVida} · Expressão: ${expressao} · Alma: ${alma} · Personalidade: ${personalidade}\n`
+    + `Ano Pessoal: ${anoPessoal} · Mês Pessoal: ${mesPessoal}\n`
+    + `🍀 Número da sorte: ${sortePrincipal} — Favoráveis: ${sorteFavoraveis.join(', ')}\n`
+    + `🔮 Combinação: ${combinacao.join(' · ')}`;
+  document.getElementById('btnCopiarPerfil').addEventListener('click', function() {
+    navigator.clipboard.writeText(resumoTexto).then(() => {
+      this.textContent = 'Copiado ✓';
+      this.classList.add('copiado');
+      setTimeout(() => { this.textContent = 'Copiar resumo do perfil'; this.classList.remove('copiado'); }, 1500);
+    }).catch(() => {});
+  });
+  document.getElementById('btnImagemPerfil').addEventListener('click', function() {
+    baixarImagemPerfil({
+      nome: primeiroNome, emoji: signo.emoji, signo: signo.nome, elemento: signo.elemento, regente: signo.regente,
+      caminhoVida, expressao, alma, personalidade, sortePrincipal, sorteFavoraveis
+    });
+  });
+  resultadoEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function refazerCalculo() {
+  document.getElementById('numeroResultado').style.display = 'none';
+  document.getElementById('numeroResultado').innerHTML = '';
+  document.getElementById('nomeInput').value = '';
+  document.getElementById('dataInput').value = '';
+  document.getElementById('horaInput').value = '';
+  document.getElementById('cidadeInput').value = '';
+  document.getElementById('numeroForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ---- Inicialização ----
+renderFreqChart();
+renderHistorico();
+verificarUltimoResultado();
+
+// Registra o service worker só se o navegador suportar e estiver num
+// contexto seguro (https ou localhost) — em file:// local ele simplesmente
+// não registra, sem gerar erro nem afetar o resto do app.
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
